@@ -121,6 +121,7 @@ print(f"OUTPUT: {output}")
 print("=" * 40)
 print()
 print("This is what a neural network layer does -- matrix multiplication.")
+print() 
 
 
 def is_linearly_independent(vectors):
@@ -148,7 +149,7 @@ def is_linearly_independent(vectors):
     return rank == n
 
 
-def project(a, b):
+def projection(a, b):
     scalar = a.dot(b) / b.dot(b)
     return Vector([scalar * x for x in b.components])
 
@@ -158,7 +159,7 @@ def gram_schmidt(vectors):
     for v in vectors:
         w = v
         for u in orthonormal:
-            proj = project(w, u)
+            proj = projection(w, u)
             w = w - proj
         if w.magnitude() < 1e-10:
             continue
@@ -171,8 +172,11 @@ v2 = Vector([1, 1, 0])
 v3 = Vector([1, 1, 1])
 basis = gram_schmidt([v1, v2, v3])
 for i, u in enumerate(basis):
-    print(f"u{i+1} = {u}")
+    print("="*40)
+    print(f"u{i+1} = {u}") 
     print(f"  |u{i+1}| = {u.magnitude():.6f}")
+    print("="*40)
+    print()
 
 print("=" * 40)
 print(f"u1 . u2 = {basis[0].dot(basis[1]):.6f}")
