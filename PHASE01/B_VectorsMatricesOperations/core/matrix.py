@@ -32,7 +32,10 @@ class Matrix:
             [self.data[i][j]*other.data[i][j] for j in range(self.cols)]
             for i in range(self.rows) 
         ])
-    
+
+    def __matmul__(self,other):
+        return self.matmul(other)
+
     def matmul(self,other):
         return Matrix([
             [
