@@ -1,53 +1,21 @@
 import sys
 import os
+import numpy as np 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from core.matrix import Matrix
-from verifyinverse import verify_inverse
+from verifyinverse import verify_inverse3x3
 
-def to_inverse(matrix):
-    return matrix@matrix.inverse_3x3()
+def numpy_inverse_check(matrix):
+    np_A = np.array(matrix.data)
 
-def is_identity(B):
-    try: 
-        A = B.data 
-        n=len(A)   
+    np_inv = np.linalg.inv(np_A)
 
-        for row in A:
-            if len(row)!=n:
-                return False 
-        
-        for i in range(n):
-            for j in range(n):
-                if i == j:
-                    if abs(A[i][j]-1) > 1e-6:
-                        return False
-                else:
-                    if abs(A[i][j])> 1e-6:
-                        return False 
-        return True 
+    my_inv = matrix.inverse_3x3().data
 
-    except Exception:
-        return False 
-
-
-def verify_inverse(matrix):
-    try:
-        result = to_inverse(matrix)
-        if is_identity(result):
-            return "Inverse is correct"
-        else:
-            return "inverse is wrong"
-    except Exception:
-        return "Matrix is Not invertable"
-
-if __name__ == "__main__":
-    A = Matrix([[1, 2], [3, 4]])
-    B = Matrix([[2, 5], [1, 3]])
-    C = Matrix([[1, 2], [2, 4]])
-
-    print(verify_inverse(A))
-    print(verify_inverse(B))
-    print(verify_inverse(C))
+    if np.allclose(my_inv, np_inv, atol=1e-6):
+        print("Correct")
+    else:
+        print("Incorrect") 
 
 matrix = Matrix([[1, 2, 3],[0, 1, 4],[5, 6, 0]])
-print(verify_inverse(matrix))
+numpy_inverse_check(matrix)
