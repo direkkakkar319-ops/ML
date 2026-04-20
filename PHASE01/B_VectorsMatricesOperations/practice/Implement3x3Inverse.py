@@ -1,12 +1,11 @@
 import sys
 import os
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from core.matrix import Matrix
+from verifyinverse import verify_inverse
 
 def to_inverse(matrix):
-    return matrix@matrix.inverse_2x2()
+    return matrix@matrix.inverse_3x3()
 
 def is_identity(B):
     try: 
@@ -49,3 +48,6 @@ if __name__ == "__main__":
     print(verify_inverse(A))
     print(verify_inverse(B))
     print(verify_inverse(C))
+
+matrix = Matrix([[1, 2, 3],[0, 1, 4],[5, 6, 0]])
+print(verify_inverse(matrix))

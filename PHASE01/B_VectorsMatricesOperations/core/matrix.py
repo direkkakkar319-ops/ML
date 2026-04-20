@@ -64,6 +64,7 @@ class Matrix:
             ])
             det+=((-1)**j)*self.data[0][j]*minor.determinant()
         return det 
+
     def inverse_2x2(self):
         det = self.determinant()
         if det == 0:
@@ -72,6 +73,41 @@ class Matrix:
             [self.data[1][1]/det, -self.data[0][1]/det],
             [-self.data[1][0]/det, self.data[0][0]/det]
         ])
+    def inverse_3x3(self):
+        A = self.data
+
+        # Step 1: determinant
+        det = (
+            A[0][0]*(A[1][1]*A[2][2] - A[1][2]*A[2][1])
+            - A[0][1]*(A[1][0]*A[2][2] - A[1][2]*A[2][0])
+            + A[0][2]*(A[1][0]*A[2][1] - A[1][1]*A[2][0])
+        )
+
+        if abs(det) < 1e-9:
+            raise ValueError("Matrix is not invertible")
+
+        # Step 2: cofactors
+        cof = [[0]*3 for _ in range(3)]
+
+        cof[0][0] =  (A[1][1]*A[2][2] - A[1][2]*A[2][1])
+        cof[0][1] = -(A[1][0]*A[2][2] - A[1][2]*A[2][0])
+        cof[0][2] =  (A[1][0]*A[2][1] - A[1][1]*A[2][0])
+
+        cof[1][0] = -(A[0][1]*A[2][2] - A[0][2]*A[2][1])
+        cof[1][1] =  (A[0][0]*A[2][2] - A[0][2]*A[2][0])
+        cof[1][2] = -(A[0][0]*A[2][1] - A[0][1]*A[2][0])
+
+        cof[2][0] =  (A[0][1]*A[1][2] - A[0][2]*A[1][1])
+        cof[2][1] = -(A[0][0]*A[1][2] - A[0][2]*A[1][0])
+        cof[2][2] =  (A[0][0]*A[1][1] - A[0][1]*A[1][0])
+
+        # Step 3: transpose (adjugate)
+        adj = [[cof[j][i] for j in range(3)] for i in range(3)]
+
+        # Step 4: divide by determinant
+        inv = [[adj[i][j] / det for j in range(3)] for i in range(3)]
+
+        return Matrix(inv)
     
     @staticmethod
     def identity(n):
