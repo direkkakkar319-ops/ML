@@ -3,7 +3,7 @@ import os
 import numpy as np 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from core.matrix import Matrix
-from verifyinverse import verify_inverse3x3
+
 
 def numpy_inverse_check(matrix):
     np_A = np.array(matrix.data)

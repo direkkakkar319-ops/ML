@@ -1,3 +1,4 @@
+import random
 class Matrix:
     def __init__(self, data):
         self.data = [list(row) for row in data]
@@ -108,10 +109,34 @@ class Matrix:
         inv = [[adj[i][j] / det for j in range(3)] for i in range(3)]
 
         return Matrix(inv)
-    
+
+    def repeat_rows(self, n):
+        data = []
+        for i in range(n):
+            data.append(self.data[0][:])  # copy first row
+        return Matrix(data)
+
+    def apply(self, func):
+        return Matrix([
+            [func(self.data[i][j]) for j in range(self.cols)]
+            for i in range(self.rows)
+        ])
+            
     @staticmethod
     def identity(n):
         return Matrix([
             [1 if i==j else 0 for j in range(n)]
             for i in range(n)
         ])
+
+
+    @staticmethod
+    def random(rows, cols):
+        data = []
+        for i in range(rows):
+            row = []
+            for j in range(cols):
+                row.append(random.uniform(-1, 1))  # small random values
+            data.append(row)
+        return Matrix(data)
+    
