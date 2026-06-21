@@ -14,15 +14,14 @@ import os
 import math
 
 sys.path.append(r"E:\ML\PHASE01\C_MatrixTransformationsAndEigenValues\core")
-from transformations import (
+from transformation import (
     rotation_2d,
     scaling_2d,
     shearing_2d,
     mat_mul,
     mat_vec_mul,
-    determinant_2x2
 )
-
+from detVolume import det_2x2
 
 # ----------------------------------
 # create transformation matrices
@@ -63,6 +62,22 @@ for p in points:
         f"{[round(x,4) for x in transformed]}"
     )
 
+
 # ----------------
 # Determinants
-# -----------------
+# ----------------
+DR = det_2x2(R)
+DS = det_2x2(S)
+DSH = det_2x2(SH)
+DC = det_2x2(C)
+
+print(f"det(R) = {DR:.4f}")
+print(f"det(S) = {DS:.4f}")
+print(f"det(H) = {DSH:.4f}")
+print(f"det(C) = {DC:.4f}")
+
+product = DR * DS * DSH
+
+print(f"Product of `rotated`, `scaled`, `sheared` matricx: {product}")
+print(f"Transformed Matrices: {C}")
+print(f"Verification: {abs(DC - product) < 1e-10}") # verification
