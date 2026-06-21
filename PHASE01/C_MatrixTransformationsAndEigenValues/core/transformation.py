@@ -43,7 +43,7 @@ def mat_mul(a, b):
         for i in range(rows_a)
     ]
 
-if __name__ == "main":
+if __name__ == "__main__":
     """Using the functions"""
     point=[1.0,0.0]
     angle=math.pi/4
