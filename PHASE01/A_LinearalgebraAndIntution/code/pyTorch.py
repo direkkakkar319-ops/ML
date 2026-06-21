@@ -8,10 +8,6 @@ similarity.backward()
 
 print("="*40) 
 print(f"x = {x.data}")
-print("="*40)
-print()
-
-print("="*40)
 print(f"y = {y.data}")
 print("="*40)
 print()
