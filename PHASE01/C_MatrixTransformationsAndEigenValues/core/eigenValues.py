@@ -31,16 +31,16 @@ def eigenvector_2x2(matrix, eignevalue):
     return (v[0]/mag, v[1]/mag)
 
 
+if __name__=="main":
+    A = [[2, 1], [1, 2]]
+    vals = eigenvalues_2x2(A)
+    print(f"Matrix: {A}")
+    print(f"Eigenvalues: {vals[0]:.4f}, {vals[1]:.4f}")
 
-A = [[2, 1], [1, 2]]
-vals = eigenvalues_2x2(A)
-print(f"Matrix: {A}")
-print(f"Eigenvalues: {vals[0]:.4f}, {vals[1]:.4f}")
-
-for val in vals:
-    vec = eigenvector_2x2(A, val)
-    result = mat_vec_mul(A, vec)
-    scaled = [val * vec[0], val * vec[1]]
-    print(f"  lambda={val:.1f}, v={[round(x,4) for x in vec]}")
-    print(f"    A@v = {[round(x,4) for x in result]}")
-    print(f"    l*v = {[round(x,4) for x in scaled]}")
+    for val in vals:
+        vec = eigenvector_2x2(A, val)
+        result = mat_vec_mul(A, vec)
+        scaled = [val * vec[0], val * vec[1]]
+        print(f"  lambda={val:.1f}, v={[round(x,4) for x in vec]}")
+        print(f"    A@v = {[round(x,4) for x in result]}")
+        print(f"    l*v = {[round(x,4) for x in scaled]}")

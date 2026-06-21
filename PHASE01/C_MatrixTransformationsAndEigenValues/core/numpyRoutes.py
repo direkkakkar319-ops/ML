@@ -43,10 +43,11 @@ def rotation_3d_x(theta):
     c, s = np.cos(theta), np.sin(theta)
     return np.array([[1, 0, 0], [0, c, -s], [0, s, c]])
 
-point_3d = np.array([1.0, 0.0, 0.0])
-rotated_z = rotation_3d_z(np.pi / 2) @ point_3d
-rotated_x = rotation_3d_x(np.pi / 2) @ point_3d
+if __name__ == "main":
+    point_3d = np.array([1.0, 0.0, 0.0])
+    rotated_z = rotation_3d_z(np.pi / 2) @ point_3d
+    rotated_x = rotation_3d_x(np.pi / 2) @ point_3d
 
-print(f"\n3D point: {point_3d}")
-print(f"Rotate 90 around z: {np.round(rotated_z, 4)}")
-print(f"Rotate 90 around x: {np.round(rotated_x, 4)}")
+    print(f"\n3D point: {point_3d}")
+    print(f"Rotate 90 around z: {np.round(rotated_z, 4)}")
+    print(f"Rotate 90 around x: {np.round(rotated_x, 4)}")
