@@ -1,0 +1,179 @@
+<div style="display: flex; align-items: center; gap: 16px; margin: 0 0 1rem; flex-wrap: wrap;">
+  <label style="font-size: 14px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 8px;">
+    <input type="checkbox" id="autorotate" checked style="width: auto;" />
+    Auto-rotate
+  </label>
+  <label style="font-size: 14px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 8px; flex: 1; min-width: 160px;">
+    Slice z =
+    <input type="range" id="zslice" min="0" max="8" step="0.1" value="4" style="flex: 1;" />
+    <span id="zval" style="min-width: 28px; font-weight: 500; color: var(--color-text-primary);">4.0</span>
+  </label>
+</div>
+
+<div style="position: relative; width: 100%; height: 420px;">
+  <canvas id="surf" role="img" aria-label="3D rotating surface plot of z equals x squared plus y squared, a paraboloid bowl shape, with an adjustable horizontal slice showing circular cross-sections">A paraboloid surface z = x^2 + y^2. Cross-sections at constant z are circles of radius sqrt(z).</canvas>
+</div>
+
+<p style="text-align: center; font-size: 13px; color: var(--color-text-secondary); margin-top: 8px;">
+  z = x² + y² &nbsp;·&nbsp; slice radius = √z = <span id="radius">2.00</span>
+</p>
+
+<script>
+(function() {
+  const canvas = document.getElementById('surf');
+  const wrapper = canvas.parentElement;
+  function sizeCanvas() {
+    const rect = wrapper.getBoundingClientRect();
+    canvas.width = rect.width * devicePixelRatio;
+    canvas.height = rect.height * devicePixelRatio;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+  }
+  sizeCanvas();
+  const ctx = canvas.getContext('2d');
+
+  const isDarkMode = () => matchMedia('(prefers-color-scheme: dark)').matches;
+
+  const RANGE = 3;
+  const STEPS = 26;
+  let angle = 0.7;
+  let tilt = 0.55;
+  let autorotate = true;
+  let zSlice = 4;
+  let dragging = false;
+  let lastX = 0, lastY = 0;
+
+  function project(x, y, z, w, h) {
+    const scale = Math.min(w, h) / 7.5;
+    const cosA = Math.cos(angle), sinA = Math.sin(angle);
+    const x1 = x * cosA - y * sinA;
+    const y1 = x * sinA + y * cosA;
+    const cosT = Math.cos(tilt), sinT = Math.sin(tilt);
+    const y2 = y1 * cosT - z * sinT;
+    const z2 = y1 * sinT + z * cosT;
+    return {
+      sx: w / 2 + x1 * scale,
+      sy: h / 2 + y2 * scale * 0.62 - z2 * scale * 0.05,
+      depth: z2 + x1 * 0.001
+    };
+  }
+
+  function surfZ(x, y) { return x * x + y * y; }
+
+  function draw() {
+    const w = canvas.width / devicePixelRatio;
+    const h = canvas.height / devicePixelRatio;
+    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    const dark = isDarkMode();
+    const lineColor = dark ? 'rgba(133,183,235,0.55)' : 'rgba(24,95,165,0.55)';
+    const fillColor = dark ? 'rgba(24,95,165,0.18)' : 'rgba(133,183,235,0.25)';
+    const axisColor = dark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
+    const sliceColor = dark ? '#F0997B' : '#D85A30';
+
+    // collect quads with depth for painter's algorithm
+    const quads = [];
+    const step = (2 * RANGE) / STEPS;
+    for (let i = 0; i < STEPS; i++) {
+      for (let j = 0; j < STEPS; j++) {
+        const x0 = -RANGE + i * step, x1 = -RANGE + (i + 1) * step;
+        const y0 = -RANGE + j * step, y1 = -RANGE + (j + 1) * step;
+        const pts = [
+          project(x0, y0, surfZ(x0, y0), w, h),
+          project(x1, y0, surfZ(x1, y0), w, h),
+          project(x1, y1, surfZ(x1, y1), w, h),
+          project(x0, y1, surfZ(x0, y1), w, h)
+        ];
+        const avgDepth = (pts[0].depth + pts[1].depth + pts[2].depth + pts[3].depth) / 4;
+        quads.push({ pts, depth: avgDepth });
+      }
+    }
+    quads.sort((a, b) => a.depth - b.depth);
+
+    for (const q of quads) {
+      ctx.beginPath();
+      ctx.moveTo(q.pts[0].sx, q.pts[0].sy);
+      for (let k = 1; k < 4; k++) ctx.lineTo(q.pts[k].sx, q.pts[k].sy);
+      ctx.closePath();
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 0.6;
+      ctx.stroke();
+    }
+
+    // axes
+    ctx.strokeStyle = axisColor;
+    ctx.lineWidth = 1;
+    [[-RANGE, 0, 0], [RANGE, 0, 0]].forEach((p, idx, arr) => {
+      const a = project(arr[0][0], arr[0][1], arr[0][2], w, h);
+      const b = project(arr[1][0], arr[1][1], arr[1][2], w, h);
+      if (idx === 0) {
+        ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
+      }
+    });
+    const xA = project(-RANGE, 0, 0, w, h), xB = project(RANGE, 0, 0, w, h);
+    const yA = project(0, -RANGE, 0, w, h), yB = project(0, RANGE, 0, w, h);
+    const zA = project(0, 0, 0, w, h), zB = project(0, 0, RANGE * RANGE, w, h);
+    ctx.beginPath(); ctx.moveTo(xA.sx, xA.sy); ctx.lineTo(xB.sx, xB.sy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(yA.sx, yA.sy); ctx.lineTo(yB.sx, yB.sy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(zA.sx, zA.sy); ctx.lineTo(zB.sx, zB.sy); ctx.stroke();
+
+    ctx.fillStyle = dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.55)';
+    ctx.font = '11px var(--font-sans, sans-serif)';
+    ctx.fillText('x', xB.sx + 4, xB.sy);
+    ctx.fillText('y', yB.sx + 4, yB.sy);
+    ctx.fillText('z', zB.sx + 4, zB.sy - 4);
+
+    // circular slice at z = zSlice
+    const radius = Math.sqrt(zSlice);
+    if (radius <= RANGE * Math.SQRT2) {
+      ctx.beginPath();
+      const segs = 64;
+      for (let i = 0; i <= segs; i++) {
+        const th = (i / segs) * Math.PI * 2;
+        const px = radius * Math.cos(th), py = radius * Math.sin(th);
+        const p = project(px, py, zSlice, w, h);
+        if (i === 0) ctx.moveTo(p.sx, p.sy); else ctx.lineTo(p.sx, p.sy);
+      }
+      ctx.strokeStyle = sliceColor;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+    }
+  }
+
+  function animate() {
+    if (autorotate && !dragging) angle += 0.006;
+    draw();
+    requestAnimationFrame(animate);
+  }
+
+  canvas.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    lastX = e.clientX; lastY = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    angle += dx * 0.008;
+    tilt = Math.max(-1.4, Math.min(1.4, tilt + dy * 0.008));
+    lastX = e.clientX; lastY = e.clientY;
+  });
+  canvas.addEventListener('pointerup', () => { dragging = false; });
+  canvas.addEventListener('pointerleave', () => { dragging = false; });
+
+  document.getElementById('autorotate').addEventListener('change', (e) => {
+    autorotate = e.target.checked;
+  });
+  document.getElementById('zslice').addEventListener('input', (e) => {
+    zSlice = parseFloat(e.target.value);
+    document.getElementById('zval').textContent = zSlice.toFixed(1);
+    document.getElementById('radius').textContent = Math.sqrt(zSlice).toFixed(2);
+  });
+
+  window.addEventListener('resize', sizeCanvas);
+  animate();
+})();
+</script>
