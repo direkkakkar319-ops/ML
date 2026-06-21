@@ -1,11 +1,13 @@
 """
 Question
-    Create a composition of three transformations 
-    (rotate 30 degrees, scale by [1.5, 0.8], shear with kx=0.3)
-    and apply it to 8 points arranged in a circle. Print before
-    and after coordinates. Compute the determinant of the composed
-    matrix and verify it equals the product of the individual
-    determinants
+    1.  Create a composition of three transformations 
+        (rotate 30 degrees, scale by [1.5, 0.8], shear with kx=0.3)
+        and apply it to 8 points arranged in a circle .
+    
+    2.  Print before and after coordinates .
+    
+    3.  Compute the determinant of the composed matrix and verify
+        it equals the product of the individual determinants .
 """
 import sys
 import os
@@ -21,8 +23,46 @@ from transformations import (
     determinant_2x2
 )
 
+
 # ----------------------------------
-# creating transformation matrices
+# create transformation matrices
 # -----------------------------------
 R = rotation_2d(math.radians(30))
 S = scaling_2d(1.5, 0.8)
+SH = shearing_2d(0.3, 0)
+
+
+# ----------------------------------
+# create composition
+# -----------------------------------
+C = mat_mul(SH, mat_mul(S, R))
+
+
+# ----------------------------------
+# Generate 8 points
+# -----------------------------------
+points = []
+for i in range(8):
+    angle = math.radians(i*45)
+    x = math.cos(angle)
+    y = math.sin(angle)
+    points.append([x,y])
+
+
+# ----------------------------------
+# Apply transformations
+# -----------------------------------
+print("Original -> Transformed")
+
+for p in points:
+    transformed = mat_vec_mul(C,p)
+    
+    print(
+        f"{[round(x,4) for x in p]}"
+        f"-->"
+        f"{[round(x,4) for x in transformed]}"
+    )
+
+# ----------------
+# Determinants
+# -----------------
