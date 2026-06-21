@@ -201,3 +201,40 @@ def test_error_mat_mul():
 # -----------------------------
 # Matrix Vector Multiplication
 #------------------------------
+def test_mat_vec_mul():
+    assert np.allclose(
+        mat_vec_mul(
+            [[2,1],[0,3]],
+            [4,5]
+        ),
+        np.array([13, 15])
+    )
+
+    assert np.allclose(
+        mat_vec_mul(
+            [[2, 0, 1],
+             [1, 3, 0],
+             [0, 1, 4]],
+            [1, 2, 3]
+        ),
+        np.array([5, 7, 14])
+    )
+
+    assert np.allclose(
+        mat_vec_mul(
+            [[0, 0],
+             [0, 0]],
+            [5, 6]
+        ),
+        np.array([0, 0])
+    )
+
+    assert np.allclose(
+        mat_vec_mul(
+            [[2, 0, 1],
+             [1, 3, 0],
+             [0, 1, 4]],
+            [1, 2, 3]
+        ),
+        np.array([5, 7, 14])
+    )
