@@ -13,14 +13,13 @@ def numerical_gradient(f, point, h=1e-7):
 
     return gradient
 
-
 def f_multi(point):
     x, y = point 
     return x**2 + 3*x*y + y**2
 
-point = [1.0, 2.0]
-grad = numerical_gradient(f_multi, point)
+if __name__ == "__main__":
+    point = [1.0, 2.0]
+    grad = numerical_gradient(f_multi, point)
 
-print(f"Numerical Gradient at (1, 2): {[f'{g:.4f}' for g in grad]}")
-print(f"Analytical Gradient at (1, 2): [{2*1+3*2}, {3*1+2*2}]") # [(2x + 3y), (3x + 2y)]
-print()
+    print(f"Numerical Gradient at (1, 2): {[f'{g:.4f}' for g in grad]}")
+    print(f"Analytical Gradient at (1, 2): [{2*1+3*2}, {3*1+2*2}]") # [(2x + 3y), (3x + 2y)]

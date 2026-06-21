@@ -4,7 +4,6 @@ def f_2d(point):
     x, y = point 
     return x ** 2 + y ** 2
 
-
 point = [4.0, 3.0]
 lr = 0.1 
 steps = 50
