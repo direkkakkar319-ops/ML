@@ -1,3 +1,5 @@
+from helper import f_multi
+
 def numerical_gradient(f, point, h=1e-7):
     gradient = []
     for i in range(len(point)):
@@ -12,10 +14,6 @@ def numerical_gradient(f, point, h=1e-7):
         gradient.append(partial)
 
     return gradient
-
-def f_multi(point):
-    x, y = point 
-    return x**2 + 3*x*y + y**2
 
 if __name__ == "__main__":
     point = [1.0, 2.0]

@@ -1,8 +1,6 @@
 from partialDerivative import numerical_gradient
 
-def f_2d(point):
-    x, y = point 
-    return x ** 2 + y ** 2
+from helper import f_2d
 
 point = [4.0, 3.0]
 lr = 0.1 
