@@ -9,8 +9,9 @@ from numpyRoutes import rotation_3d_z, rotation_3d_x
 # -----------------
 # Roataion 3D `z`
 # -----------------
-
+def rotation_3d_z():
 
 # -----------------
 # Roataion 3D `x`
 # -----------------
+def test_rotation_3d_x():
