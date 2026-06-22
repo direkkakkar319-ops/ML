@@ -1,3 +1,9 @@
+"""
+Question
+    Implement `Vector.angle_between(other)`
+    that returns the angle in degrees between
+    two vectors
+"""
 import numpy as np
 class Vector:
     def __init__(self, components):

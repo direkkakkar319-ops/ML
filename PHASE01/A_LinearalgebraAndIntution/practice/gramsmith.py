@@ -1,7 +1,8 @@
 """
-Verify that the Gram-Schmidt output is truly orthonormal:
-check that every pair has dot product 0 and every vector 
-has magnitude 1
+Question
+    Verify that the Gram-Schmidt output is truly orthonormal:
+    check that every pair has dot product 0 and every vector 
+    has magnitude 1
 """
 
 class Vector:

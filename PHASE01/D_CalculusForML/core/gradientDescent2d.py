@@ -8,7 +8,8 @@ steps = 50
 
 for step in range(steps):
     grad = numerical_gradient(f_2d, point)
-    point = [p-lr*g for p, g in zip(point , grad)] # `zip(point, grad)` pairs the coordinates with their corresponding gradients
+    point = [p-lr*g for p, g in zip(point , grad)]
+    # `zip(point, grad)` pairs the coordinates with their corresponding gradients
     loss = f_2d(point)
 
     if step % 5 == 0 or step == 49:

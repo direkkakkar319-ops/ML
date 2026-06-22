@@ -1,3 +1,10 @@
+"""
+Question
+    Implement 3x3 inverse. Extend the Matrix
+    class to compute inverses for 3x3 matrices
+    using the adjugate method. Test it against
+    NumPy's `np.linalg.inv`.
+"""
 import sys
 import os
 import numpy as np 

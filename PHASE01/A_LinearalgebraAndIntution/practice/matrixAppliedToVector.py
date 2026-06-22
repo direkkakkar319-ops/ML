@@ -1,3 +1,8 @@
+"""Question
+    Create a 2D scaling matrix that doubles the
+    x-coordinate and triples the y-coordinate
+    then apply it to the vector [1, 1]
+"""
 class Matrix:
     def __init__(self, rows):
         self.rows = [list (row) for row in rows]

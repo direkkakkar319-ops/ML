@@ -1,3 +1,10 @@
+"""
+Question
+    Verify the inverse. Multiply `A @ A.inverse_2x2()`
+    and confirm you get the identity matrix.
+    Try it with three different 2x2 matrices.
+    What happens when the determinant is zero?
+"""
 import sys
 import os
 

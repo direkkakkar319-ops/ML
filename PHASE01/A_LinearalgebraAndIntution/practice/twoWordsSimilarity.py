@@ -1,3 +1,8 @@
+"""
+Question
+    Given 5 random word-like vectors (dimension 50),
+    find the two most similar using cosine similarity
+"""
 class Vector:
     def __init__(self, components):
         self.components = components

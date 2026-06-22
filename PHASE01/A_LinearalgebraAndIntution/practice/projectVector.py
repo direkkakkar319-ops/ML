@@ -1,6 +1,7 @@
 """
-Project the vector [1, 2, 3] onto [1, 1, 1].
-What does the result represent geometrically ?
+Question
+    Project the vector [1, 2, 3] onto [1, 1, 1].
+    What does the result represent geometrically ?
 """
 class Vector:
     def __init__(self, components):

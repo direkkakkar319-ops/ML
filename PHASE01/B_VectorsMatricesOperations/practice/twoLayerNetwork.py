@@ -1,3 +1,12 @@
+"""
+Question
+    Build a two-layer network. Using only your
+    Matrix class (no NumPy), create a two-layer
+    neural network:
+        `input (3) -> hidden (4) -> output (2)`
+    Initialize random weights, run a forward pass,
+    and verify all shapes are correct.
+"""
 import sys
 import os
 import math
