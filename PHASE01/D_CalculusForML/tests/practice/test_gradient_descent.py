@@ -8,6 +8,6 @@ from gradient_descent import f , gradient_descent
 
 def test_gradient_descent():
     point = [0.0, 0.0]
-    output = gradient_descent(f, point)
+    output = gradient_descent(f, point, steps=400, lr=0.01)
 
     assert output == pytest.approx([3.0, -1.0], rel=1e-3)
