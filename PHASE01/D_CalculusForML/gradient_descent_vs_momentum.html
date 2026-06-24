@@ -1,0 +1,170 @@
+
+<style>
+  .ctrl { display:flex; align-items:center; gap:10px; margin-bottom:8px; font-size:13px; color:var(--color-text-secondary); }
+  .ctrl label { width:90px; text-align:right; }
+  .ctrl span { width:48px; font-weight:500; color:var(--color-text-primary); font-size:13px; }
+  .badge { display:inline-block; padding:2px 10px; border-radius:var(--border-radius-md); font-size:12px; font-weight:500; }
+  .stat-row { display:flex; gap:10px; margin-bottom:1rem; }
+  .stat { flex:1; background:var(--color-background-secondary); border-radius:var(--border-radius-md); padding:10px 14px; }
+  .stat-label { font-size:12px; color:var(--color-text-secondary); margin-bottom:2px; }
+  .stat-val { font-size:20px; font-weight:500; }
+</style>
+<h2 class="sr-only">Interactive visualization comparing gradient descent with and without momentum on f(x) = x⁴ − 3x²</h2>
+
+<div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap;">
+  <div style="flex:1; min-width:280px;">
+    <div class="ctrl"><label>learning rate</label><input type="range" id="lr" min="1" max="10" value="1" step="1" style="flex:1"><span id="lr-out">0.0001</span></div>
+    <div class="ctrl"><label>momentum β</label><input type="range" id="beta" min="0" max="99" value="95" step="1" style="flex:1"><span id="beta-out">0.95</span></div>
+    <div class="ctrl"><label>steps</label><input type="range" id="steps" min="10" max="600" value="150" step="10" style="flex:1"><span id="steps-out">150</span></div>
+    <div class="ctrl"><label>start x</label><input type="range" id="startx" min="1" max="15" value="10" step="1" style="flex:1"><span id="startx-out">10.0</span></div>
+
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-label">Normal GD — final x</div>
+        <div class="stat-val" id="gd-val" style="color:#378ADD">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Momentum GD — final x</div>
+        <div class="stat-val" id="mom-val" style="color:#D85A30">—</div>
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-label">Normal GD — f(x) at end</div>
+        <div class="stat-val" id="gd-fx" style="color:#378ADD">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Momentum — f(x) at end</div>
+        <div class="stat-val" id="mom-fx" style="color:#D85A30">—</div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <span class="badge" style="background:#E6F1FB; color:#0C447C;">— Normal GD</span>
+      <span class="badge" style="background:#FAECE7; color:#712B13;">— Momentum GD</span>
+      <span class="badge" style="background:#EAF3DE; color:#27500A;">● minima at ±1.22</span>
+    </div>
+  </div>
+
+  <div style="flex:2; min-width:320px;">
+    <div style="position:relative; width:100%; height:340px;"><canvas id="pathChart" role="img" aria-label="Line chart showing f(x) curve with convergence paths for normal and momentum gradient descent"></canvas></div>
+    <div style="position:relative; width:100%; height:220px; margin-top:6px;"><canvas id="lossChart" role="img" aria-label="Line chart comparing loss values over iterations for normal and momentum gradient descent"></canvas></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const f = x => x**4 - 3*x**2;
+const df = x => 4*x**3 - 6*x;
+const h = 1e-5;
+const numGrad = x => (f(x+h) - f(x-h)) / (2*h);
+
+function runGD(start, lr, steps) {
+  let x = start, hist = [x];
+  for (let i = 0; i < steps; i++) { x -= lr * numGrad(x); hist.push(x); }
+  return hist;
+}
+function runMom(start, lr, beta, steps) {
+  let x = start, v = 0, hist = [x];
+  for (let i = 0; i < steps; i++) {
+    v = beta * v + lr * numGrad(x);
+    x -= v;
+    hist.push(x);
+  }
+  return hist;
+}
+
+const lrMap = [0.00005,0.0001,0.0002,0.0003,0.0005,0.0007,0.001,0.002,0.005,0.01];
+
+let pathChart, lossChart;
+
+function getLR(v){ return lrMap[v-1]; }
+
+function buildCharts() {
+  const lr = getLR(+document.getElementById('lr').value);
+  const beta = +document.getElementById('beta').value / 100;
+  const steps = +document.getElementById('steps').value;
+  const startX = +document.getElementById('startx').value;
+
+  const gdHist = runGD(startX, lr, steps);
+  const momHist = runMom(startX, lr, beta, steps);
+
+  const gdFinal = gdHist[gdHist.length-1];
+  const momFinal = momHist[momHist.length-1];
+
+  document.getElementById('gd-val').textContent = gdFinal.toFixed(4);
+  document.getElementById('mom-val').textContent = momFinal.toFixed(4);
+  document.getElementById('gd-fx').textContent = f(gdFinal).toFixed(4);
+  document.getElementById('mom-fx').textContent = f(momFinal).toFixed(4);
+
+  const xMin = Math.min(-2, -Math.abs(startX)-0.5);
+  const xMax = Math.max(2, Math.abs(startX)+0.5);
+  const xs = [], ys = [];
+  for (let xi = xMin; xi <= xMax; xi += 0.05) { xs.push(+xi.toFixed(2)); ys.push(f(xi)); }
+
+  const gdDots = gdHist.map(x => ({ x, y: f(x) }));
+  const momDots = momHist.map(x => ({ x, y: f(x) }));
+
+  const gdLoss = gdHist.map(x => f(x));
+  const momLoss = momHist.map(x => f(x));
+  const iters = Array.from({length: steps+1}, (_,i) => i);
+
+  if (pathChart) pathChart.destroy();
+  if (lossChart) lossChart.destroy();
+
+  pathChart = new Chart(document.getElementById('pathChart'), {
+    type: 'line',
+    data: {
+      datasets: [
+        { label: 'f(x) curve', data: xs.map((x,i) => ({x,y:ys[i]})), borderColor:'#888780', borderWidth:1.5, pointRadius:0, tension:0.3, fill:false, borderDash:[] },
+        { label: 'Normal GD', data: gdDots, borderColor:'#378ADD', backgroundColor:'#378ADD', pointRadius: gdDots.map((_,i)=> i===0||i===gdDots.length-1?5:2), pointBackgroundColor: gdDots.map((_,i)=>i===0?'#888780':i===gdDots.length-1?'#378ADD':'#85B7EB'), borderWidth:1.5, tension:0, fill:false, showLine:true },
+        { label: 'Momentum GD', data: momDots, borderColor:'#D85A30', backgroundColor:'#D85A30', pointRadius: momDots.map((_,i)=> i===0||i===momDots.length-1?5:2), pointBackgroundColor: momDots.map((_,i)=>i===0?'#888780':i===momDots.length-1?'#D85A30':'#F0997B'), borderWidth:1.5, tension:0, fill:false, showLine:true },
+        { label: 'Global minima', data:[{x:-1.2247,y:f(-1.2247)},{x:1.2247,y:f(1.2247)}], pointRadius:7, pointBackgroundColor:'#639922', borderWidth:0, showLine:false, type:'scatter' }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      parsing:false,
+      interaction:{ mode:'nearest', intersect:false },
+      plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: ctx => `x=${ctx.parsed.x.toFixed(3)}, f=${ctx.parsed.y.toFixed(3)}` } } },
+      scales:{
+        x:{ type:'linear', title:{display:true,text:'x',color:'#888780',font:{size:12}}, ticks:{color:'#888780',font:{size:11},maxTicksLimit:8, callback:v=>v.toFixed(1)} },
+        y:{ title:{display:true,text:'f(x) = x⁴ − 3x²',color:'#888780',font:{size:12}}, ticks:{color:'#888780',font:{size:11},maxTicksLimit:6, callback:v=>v.toFixed(1)} }
+      }
+    }
+  });
+
+  lossChart = new Chart(document.getElementById('lossChart'), {
+    type:'line',
+    data:{
+      labels: iters,
+      datasets:[
+        { label:'Normal GD', data:gdLoss, borderColor:'#378ADD', backgroundColor:'rgba(55,138,221,0.08)', borderWidth:2, pointRadius:0, fill:true, tension:0.2, borderDash:[] },
+        { label:'Momentum GD', data:momLoss, borderColor:'#D85A30', backgroundColor:'rgba(216,90,48,0.08)', borderWidth:2, pointRadius:0, fill:true, tension:0.2, borderDash:[4,3] }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ title:{display:true,text:'iteration',color:'#888780',font:{size:12}}, ticks:{color:'#888780',font:{size:11},maxTicksLimit:8} },
+        y:{ title:{display:true,text:'loss f(x)',color:'#888780',font:{size:12}}, ticks:{color:'#888780',font:{size:11},maxTicksLimit:5, callback:v=>v.toFixed(1)} }
+      }
+    }
+  });
+}
+
+function updateLabels() {
+  document.getElementById('lr-out').textContent = getLR(+document.getElementById('lr').value);
+  document.getElementById('beta-out').textContent = (+document.getElementById('beta').value / 100).toFixed(2);
+  document.getElementById('steps-out').textContent = document.getElementById('steps').value;
+  document.getElementById('startx-out').textContent = (+document.getElementById('startx').value).toFixed(1);
+}
+
+['lr','beta','steps','startx'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => { updateLabels(); buildCharts(); });
+});
+
+updateLabels();
+buildCharts();
+</script>

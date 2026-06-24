@@ -34,13 +34,13 @@ def momentum_gradient_descent(f, point, steps, lr, momentum=0.95):
 
     return point
 
+if __name__ == "__main__":
+    steps = 500
+    lr = 0.0001
+    point = [1.0]
 
-steps = 500
-lr = 0.0001
-point = [10.0]
+    normal = gradient_descent(f, point, steps, lr)
+    momentum = momentum_gradient_descent(f, point, steps, lr)
 
-normal = gradient_descent(f, point, steps, lr)
-momentum = momentum_gradient_descent(f, point, steps, lr)
-
-print(f"Gradient Descent done Normally: {normal}")
-print(f"Gradient Descent done using momentum:  {momentum}")
+    print(f"Gradient Descent done Normally: {normal}")
+    print(f"Gradient Descent done using momentum:  {momentum}")
