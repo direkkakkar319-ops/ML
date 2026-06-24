@@ -4,15 +4,28 @@ import os
 import pytest 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from main import divide, get_weather, add, prime_number, get_season, UserManager, DatabaseManager, save_user
+from main import (
+    divide,
+    get_weather,
+    add,
+    prime_number,
+    get_season,
+    UserManager,
+    DatabaseManager,
+    save_user
+)
+
 def test_cold_weather():
     assert get_weather(10) == "Cold"
+
 
 def test_hot_weather():
     assert get_weather(30) == "Hot"
 
+
 def test_add():
     assert add(10, 10) == 20
+
 
 def test_divide():
     with pytest.raises(ValueError, match = "Can't divide by zero"):
@@ -29,21 +42,28 @@ def user_manager():
     """Creates a fresh instance of `UserManager()` for every test run"""
     return UserManager()
 
+
 def test_add_user(user_manager):
     assert user_manager.add_user("John Don", "john@gmail.com") == True 
     assert user_manager.get_user("John Don") == "john@gmail.com"
+
 
 def test_for_duplicate_user(user_manager):
     user_manager.add_user("John Don", "john@gmail.com")
     with pytest.raises(ValueError, match="User already exists"):
         user_manager.add_user("John Don", "another@gmail.com")
 
+
 @pytest.fixture
 def database_manager():
-    """Creates a fresh instance of `DataManager()` for every test run and clears the previour one"""
+    """
+    Creates a fresh instance of `DataManager()` for
+    every test run and clears the previour one
+    """
     databaseManager = DatabaseManager()
     yield databaseManager
     databaseManager.data.clear()
+
 
 def test_add_user(database_manager):
     database_manager.add_user("John", 1212)
@@ -65,7 +85,8 @@ def test_delete_user(database_manager):
 
 """
 `@pytest.mark.parameters()`
-    used to run the same test function multiple times with different input values.
+    used to run the same test function multiple 
+    times with different input values.
 """
 @pytest.mark.parametrize("num, expected", [
     (1, False),
@@ -78,6 +99,7 @@ def test_delete_user(database_manager):
 ])
 def test_prime_number(num, expected):
     assert prime_number(num) == expected
+
 
 """Mocking"""
 def test_get_season(mocker):
@@ -95,7 +117,7 @@ def test_get_season(mocker):
     assert result == {"temperature": 25, "condition": "Sunny"}
     mocker_get.assert_called_once_with("https://api.weather.com/v1/Dubai")
 
-import sqlite3
+
 """Mocking with database"""
 def test_save_user(mocker):
     mocker_get = mocker.patch("sqlite3.connect")

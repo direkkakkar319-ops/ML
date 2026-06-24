@@ -1,8 +1,8 @@
 # %%
 """
 Unpacking
-    It refers to splitting up an iterable object
-    and grabbing individual elements
+    It refers to splitting up an iterable object and grabbing
+    individual elements
 """
 
 # Basic unpacking

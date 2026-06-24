@@ -19,7 +19,7 @@ def f(point):
 
 def momentum_gradient_descent(f, point, steps, lr, momentum=0.95):
     velocity = [0.0]   
-    point = point.copy() # prevents accidental modification of the callers list
+    point = point.copy()
 
     for _ in range(steps):
         gradient = numerical_gradient(f, point)
