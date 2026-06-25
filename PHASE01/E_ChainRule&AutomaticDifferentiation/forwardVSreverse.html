@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forward vs Reverse Mode Autodiff</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface1: #f1efe8;
+    --border: rgba(0,0,0,0.12);
+    --border-strong: rgba(0,0,0,0.22);
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-muted: #88807a;
+    --accent: #185fa5;
+    --accent-bg: #e6f1fb;
+    --accent-border: #85b7eb;
+    --success: #3b6d11;
+    --success-bg: #eaf3de;
+    --success-border: #97c459;
+    --radius: 8px;
+    --mono: 'Menlo', 'Consolas', monospace;
+    --sans: system-ui, -apple-system, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18;
+      --surface: #2c2c2a;
+      --surface1: #252523;
+      --border: rgba(255,255,255,0.10);
+      --border-strong: rgba(255,255,255,0.20);
+      --text-primary: #e8e6de;
+      --text-secondary: #b4b2a9;
+      --text-muted: #888780;
+      --accent: #85b7eb;
+      --accent-bg: #042c53;
+      --accent-border: #185fa5;
+      --success: #97c459;
+      --success-bg: #173404;
+      --success-border: #3b6d11;
+    }
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px 64px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 720px;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .mode-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .mode-btn {
+    padding: 6px 18px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border-strong);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--sans);
+    transition: all .2s;
+  }
+
+  .mode-btn.active {
+    background: var(--accent-bg);
+    border-color: var(--accent-border);
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .mode-caption {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  .eq {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--surface1);
+    border: 0.5px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: var(--text-primary);
+  }
+
+  .formula-bar {
+    background: var(--surface1);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .formula-bar .eq { font-size: 13px; }
+
+  #goal-label {
+    color: var(--accent);
+  }
+
+  /* Steps */
+  .step-row {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .step-cell {
+    flex: 1;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    border: 0.5px solid var(--border);
+    background: var(--surface);
+    transition: border-color .2s, background .2s, opacity .2s;
+  }
+
+  .step-cell.hi {
+    border-color: var(--accent-border);
+    background: var(--accent-bg);
+  }
+
+  .step-cell.done {
+    opacity: 0.45;
+  }
+
+  .cell-label {
+    font-weight: 500;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .cell-val {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+
+  .cell-deriv {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    margin-top: 3px;
+  }
+
+  .arrow-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 18px;
+    width: 20px;
+    flex-shrink: 0;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 10px 0 4px;
+    line-height: 1.65;
+    min-height: 48px;
+  }
+
+  /* Verdict */
+  .verdict {
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-top: 8px;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .verdict.fwd {
+    background: var(--accent-bg);
+    border: 0.5px solid var(--accent-border);
+    color: var(--accent);
+  }
+
+  .verdict.rev {
+    background: var(--success-bg);
+    border: 0.5px solid var(--success-border);
+    color: var(--success);
+  }
+
+  /* Controls */
+  .step-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .ctrl-btn {
+    padding: 5px 16px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border-strong);
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--sans);
+    color: var(--text-secondary);
+    transition: background .15s;
+  }
+
+  .ctrl-btn:hover { background: var(--surface1); }
+
+  .step-counter {
+    font-size: 12px;
+    color: var(--text-muted);
+    flex: 1;
+    text-align: center;
+  }
+
+  /* When to use */
+  .use-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .use-card {
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+
+  .use-card.fwd {
+    background: var(--accent-bg);
+    border: 0.5px solid var(--accent-border);
+  }
+
+  .use-card.rev {
+    background: var(--success-bg);
+    border: 0.5px solid var(--success-border);
+  }
+
+  .use-card-title {
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .use-card.fwd .use-card-title { color: var(--accent); }
+  .use-card.rev .use-card-title { color: var(--success); }
+
+  .use-card-body {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+
+  /* Summary table */
+  .summary {
+    margin-top: 28px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 0.5px solid var(--border);
+  }
+
+  .summary table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .summary th {
+    background: var(--surface1);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-bottom: 0.5px solid var(--border);
+    font-size: 12px;
+  }
+
+  .summary td {
+    padding: 8px 12px;
+    border-bottom: 0.5px solid var(--border);
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+
+  .summary tr:last-child td { border-bottom: none; }
+
+  .summary td:first-child {
+    color: var(--text-primary);
+    font-weight: 500;
+    white-space: nowrap;
+    width: 160px;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: var(--mono);
+    margin-right: 3px;
+  }
+
+  .tag.fwd { background: var(--accent-bg); color: var(--accent); border: 0.5px solid var(--accent-border); }
+  .tag.rev { background: var(--success-bg); color: var(--success); border: 0.5px solid var(--success-border); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Forward vs Reverse Mode Autodiff</h1>
+  <p class="subtitle">Step through both modes on the same example function.</p>
+
+  <div class="mode-tabs">
+    <button class="mode-btn active" id="btn-fwd" onclick="setMode('fwd')">Forward mode</button>
+    <button class="mode-btn" id="btn-rev" onclick="setMode('rev')">Reverse mode</button>
+  </div>
+  <div class="mode-caption" id="mode-caption">
+    Forward mode: sweep left→right, carrying <code class="eq">∂v/∂x₁</code> (tangent) forward at each step.
+  </div>
+
+  <div class="formula-bar">
+    <span style="color:var(--text-muted)">Example:</span>&nbsp;
+    <code class="eq">f(x₁, x₂) = ln(x₁) + x₁·x₂ − sin(x₂)</code>
+    &nbsp;<span style="color:var(--text-muted)">at</span>&nbsp;
+    <code class="eq">x₁=2, x₂=5</code>
+    &nbsp;→ find&nbsp;<code class="eq" id="goal-label">∂f/∂x₁</code>
+  </div>
+
+  <div id="steps-container"></div>
+  <div class="step-desc" id="step-desc"></div>
+  <div class="verdict" id="verdict"></div>
+
+  <div class="step-controls">
+    <button class="ctrl-btn" onclick="prevStep()">← Back</button>
+    <span class="step-counter" id="step-counter"></span>
+    <button class="ctrl-btn" onclick="nextStep()">Next →</button>
+  </div>
+
+  <div class="use-grid">
+    <div class="use-card fwd">
+      <div class="use-card-title">Forward mode — when to use</div>
+      <div class="use-card-body">Few inputs, many outputs (e.g. sensitivity analysis, Jacobian columns). Cost scales with <em>number of inputs</em>.</div>
+    </div>
+    <div class="use-card rev">
+      <div class="use-card-title">Reverse mode — when to use</div>
+      <div class="use-card-body">Many inputs, few outputs (e.g. neural net with millions of params, one loss). Cost scales with <em>number of outputs</em>. This is backpropagation.</div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <table>
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th><span class="tag fwd">Forward</span></th>
+          <th><span class="tag rev">Reverse</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cost per gradient</td>
+          <td>O(inputs) passes</td>
+          <td>O(outputs) passes</td>
+        </tr>
+        <tr>
+          <td>Memory</td>
+          <td>Low (no tape)</td>
+          <td>Higher (caches forward values)</td>
+        </tr>
+        <tr>
+          <td>ML training</td>
+          <td>Impractical at scale</td>
+          <td>The standard (backprop)</td>
+        </tr>
+        <tr>
+          <td>Sensitivity analysis</td>
+          <td>Great fit</td>
+          <td>Overkill</td>
+        </tr>
+        <tr>
+          <td>PyTorch equivalent</td>
+          <td><code class="eq">torch.autograd.functional.jvp()</code></td>
+          <td><code class="eq">loss.backward()</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const FWD_STEPS = [
+  {
+    label: "Set seed",
+    nodes: [
+      {name:"x₁", val:"2", deriv:"ẋ₁ = 1  ← seed for ∂/∂x₁"},
+      {name:"x₂", val:"5", deriv:"ẋ₂ = 0  ← other input: tangent = 0"},
+    ],
+    desc: "Assign the <em>tangent seed</em>: ẋ₁ = 1 (we want ∂/∂x₁), ẋ₂ = 0. Every subsequent step carries these tangents forward alongside the primal value."
+  },
+  {
+    label: "v₁ = ln(x₁)",
+    nodes: [
+      {name:"v₁", val:"ln(2) ≈ 0.693", deriv:"v̇₁ = ẋ₁ / x₁ = 1/2 = 0.5"},
+    ],
+    desc: "Compute <strong>value</strong> and <strong>tangent</strong> together: v₁ = ln(2) ≈ 0.693, v̇₁ = (1/x₁)·ẋ₁ = (1/2)·1 = <strong>0.5</strong>"
+  },
+  {
+    label: "v₂ = x₁·x₂",
+    nodes: [
+      {name:"v₂", val:"2 × 5 = 10", deriv:"v̇₂ = ẋ₁·x₂ + x₁·ẋ₂ = 1·5 + 2·0 = 5"},
+    ],
+    desc: "Product rule: v̇₂ = ẋ₁·x₂ + x₁·ẋ₂ = 1·5 + 2·0 = <strong>5</strong>"
+  },
+  {
+    label: "v₃ = sin(x₂)",
+    nodes: [
+      {name:"v₃", val:"sin(5) ≈ −0.959", deriv:"v̇₃ = cos(x₂)·ẋ₂ = cos(5)·0 = 0"},
+    ],
+    desc: "v̇₃ = cos(5)·ẋ₂ = cos(5)·0 = <strong>0</strong>. Since x₂ has zero tangent, its contribution vanishes entirely."
+  },
+  {
+    label: "v₄ = v₁ + v₂ − v₃  (= f)",
+    nodes: [
+      {name:"f", val:"0.693 + 10 − (−0.959) ≈ 11.652", deriv:"v̇₄ = v̇₁ + v̇₂ − v̇₃ = 0.5 + 5 − 0 = 5.5"},
+    ],
+    desc: "Sum rule adds the tangents: v̇₄ = 0.5 + 5 − 0 = <strong>5.5</strong>. That's ∂f/∂x₁ — in one forward pass!"
+  },
+];
+
+const REV_STEPS = [
+  {
+    label: "Forward pass — cache values",
+    nodes: [
+      {name:"v₁ = ln(2)", val:"≈ 0.693", deriv:"stored on tape"},
+      {name:"v₂ = 2·5", val:"= 10", deriv:"stored on tape"},
+      {name:"v₃ = sin(5)", val:"≈ −0.959", deriv:"stored on tape"},
+      {name:"f ≈ 11.652", val:"output", deriv:"seed: ∂̄f = 1"},
+    ],
+    desc: "Run the full forward pass, <em>recording</em> every intermediate value on a tape. Then set the reverse seed: ∂̄f = 1 (we want the gradient of f w.r.t. everything)."
+  },
+  {
+    label: "Backprop through sum: ∂̄v₁, ∂̄v₂, ∂̄v₃",
+    nodes: [
+      {name:"∂̄v₁", val:"∂̄f · 1 = 1", deriv:"adjoint of v₁"},
+      {name:"∂̄v₂", val:"∂̄f · 1 = 1", deriv:"adjoint of v₂"},
+      {name:"∂̄v₃", val:"∂̄f · (−1) = −1", deriv:"adjoint of v₃"},
+    ],
+    desc: "f = v₁ + v₂ − v₃, so each term's adjoint is ∂̄f times the local partial. <strong>One backward step distributes the gradient to three nodes at once.</strong>"
+  },
+  {
+    label: "Backprop through sin: ∂̄x₂ ← v₃",
+    nodes: [
+      {name:"∂̄x₂ += ∂̄v₃·cos(x₂)", val:"= (−1)·cos(5) ≈ −(−0.284) = 0.284", deriv:"accumulates into ∂̄x₂"},
+    ],
+    desc: "v₃ = sin(x₂) → ∂v₃/∂x₂ = cos(x₂). Adjoint: ∂̄x₂ += ∂̄v₃·cos(5) = (−1)·(−0.284) ≈ <strong>+0.284</strong>"
+  },
+  {
+    label: "Backprop through product: ∂̄x₁, ∂̄x₂ ← v₂",
+    nodes: [
+      {name:"∂̄x₁ += ∂̄v₂·x₂", val:"= 1·5 = 5", deriv:"accumulates into ∂̄x₁"},
+      {name:"∂̄x₂ += ∂̄v₂·x₁", val:"= 1·2 = 2", deriv:"accumulates into ∂̄x₂"},
+    ],
+    desc: "v₂ = x₁·x₂ → ∂v₂/∂x₁ = x₂, ∂v₂/∂x₂ = x₁. Both inputs updated simultaneously. Running total: ∂̄x₂ = 0.284 + 2 = 2.284"
+  },
+  {
+    label: "Backprop through ln: ∂̄x₁ ← v₁  — final",
+    nodes: [
+      {name:"∂̄x₁ += ∂̄v₁/x₁", val:"= 1/2 = 0.5 → total: 5.5", deriv:"∂f/∂x₁ = 5.5 ✓"},
+      {name:"∂f/∂x₂", val:"≈ 2.284", deriv:"both in one backward pass"},
+    ],
+    desc: "v₁ = ln(x₁) → ∂v₁/∂x₁ = 1/x₁. Final: ∂̄x₁ = 5 + 0.5 = <strong>5.5</strong>, ∂̄x₂ ≈ <strong>2.284</strong>. One backward pass gave <em>all</em> partial derivatives simultaneously."
+  },
+];
+
+let mode = 'fwd';
+let step = 0;
+
+function steps() { return mode === 'fwd' ? FWD_STEPS : REV_STEPS; }
+
+function render() {
+  const s = steps();
+  const container = document.getElementById('steps-container');
+  container.innerHTML = '';
+
+  s.forEach((st, i) => {
+    const div = document.createElement('div');
+    div.className = 'step-row';
+
+    const cell = document.createElement('div');
+    cell.className = 'step-cell' + (i === step ? ' hi' : (i < step ? ' done' : ''));
+
+    let inner = `<div class="cell-label">${st.label}</div>`;
+    if (i <= step) {
+      st.nodes.forEach(n => {
+        inner += `<div class="cell-val">${n.name}: ${n.val}</div>`;
+        if (n.deriv) inner += `<div class="cell-deriv">${n.deriv}</div>`;
+      });
+    } else {
+      inner += `<div style="font-size:12px;color:var(--text-muted)">…</div>`;
+    }
+    cell.innerHTML = inner;
+    div.appendChild(cell);
+
+    if (i < s.length - 1) {
+      const arrow = document.createElement('div');
+      arrow.className = 'arrow-col';
+      arrow.textContent = mode === 'fwd' ? '↓' : '↑';
+      div.appendChild(arrow);
+    }
+
+    container.appendChild(div);
+  });
+
+  document.getElementById('step-desc').innerHTML = s[step].desc;
+
+  const v = document.getElementById('verdict');
+  if (step === s.length - 1) {
+    v.style.display = 'block';
+    v.className = 'verdict ' + mode;
+    if (mode === 'fwd') {
+      v.innerHTML = `<strong>∂f/∂x₁ = 5.5</strong> — arrived via one forward sweep. To also get ∂f/∂x₂ you'd need a second sweep with ẋ₂=1. Cost = <em>one pass per input</em>.`;
+    } else {
+      v.innerHTML = `<strong>∂f/∂x₁ = 5.5, ∂f/∂x₂ ≈ 2.284</strong> — both from a single backward pass. Cost = <em>one pass per output</em>. With millions of parameters and one loss, backprop wins by an enormous margin.`;
+    }
+  } else {
+    v.style.display = 'none';
+  }
+
+  document.getElementById('step-counter').textContent = `Step ${step + 1} of ${s.length}`;
+}
+
+function setMode(m) {
+  mode = m;
+  step = 0;
+  document.getElementById('btn-fwd').className = 'mode-btn' + (m === 'fwd' ? ' active' : '');
+  document.getElementById('btn-rev').className = 'mode-btn' + (m === 'rev' ? ' active' : '');
+  document.getElementById('mode-caption').innerHTML = m === 'fwd'
+    ? 'Forward mode: sweep left→right, carrying <code class="eq">∂v/∂x₁</code> (tangent) forward at each step.'
+    : 'Reverse mode: forward pass stores values on a tape, then a backward sweep accumulates <code class="eq">∂f/∂v</code> (adjoints) back to each input.';
+  document.getElementById('goal-label').textContent = m === 'fwd' ? '∂f/∂x₁' : '∂f/∂x₁ and ∂f/∂x₂';
+  render();
+}
+
+function nextStep() { if (step < steps().length - 1) { step++; render(); } }
+function prevStep() { if (step > 0) { step--; render(); } }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') nextStep();
+  if (e.key === 'ArrowLeft') prevStep();
+});
+
+render();
+</script>
+</body>
+</html>
