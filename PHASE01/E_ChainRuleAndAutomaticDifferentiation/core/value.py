@@ -92,62 +92,6 @@ class Value:
         return output
 
 
-    def relu(self):
-        """
-        Apply the ReLU activation function.
-            ReLU(x) = max(0, x)
-
-        During backpropagation:
-            gradient = 1 if output > 0 else 0
-        """
-        output = Value(
-            data=max(0, self.data),
-            children=(self,), 
-            op="relu"
-            )
-
-        def _backward():
-            self.grad += (1.0 if output.data > 0 else 0.0) * output.grad
-
-        output._backward = _backward
-        return output
-
-
-    def backward(self):
-        """
-        Compute gradients for all nodes in the computation graph.
-
-        Performs:
-        1. Topological sorting of the graph.
-        2. Seeds the output gradient with 1.0.
-        3. Traverses the graph in reverse topological order.
-        4. Calls each node's stored backward function.
-
-        After execution, every node's `grad` contains:
-            d(output) / d(node)
-        """
-        topo = []
-        visited = set()
-
-
-        def build_topo(v):
-            """
-            Recursively build a topological ordering of nodes.
-            """
-            if v not in visited:
-                visited.add(v)
-                for child in v._prev:
-                    build_topo(child)
-                topo.append(v)
-
-        build_topo(self)
-
-        self.grad = 1.0
-
-        for v in reversed(topo):
-            v._backward()
-
-
     def __neg__(self):
         """
         Return the negation of this value.
@@ -223,95 +167,151 @@ class Value:
             return self * (Value(other) ** -1)
 
 
-def exp(self):
-    """
-    Compute the exponential of this value.
-        output = e^x
+    def relu(self):
+        """
+        Apply the ReLU activation function.
+            ReLU(x) = max(0, x)
 
-    Creates a new node representing the exponential function.
+        During backpropagation:
+            gradient = 1 if output > 0 else 0
+        """
+        output = Value(
+            data=max(0, self.data),
+            children=(self,), 
+            op="relu"
+            )
 
-    During backpropagation, the derivative is:
-        d(e^x)/dx = e^x
+        def _backward():
+            self.grad += (1.0 if output.data > 0 else 0.0) * output.grad
 
-    Therefore:
-        self.grad += output.data * output.grad
-    """
-    import math
-
-    e = math.exp(self.data)
-    output = Value(
-        data=e,
-        children=(self,),
-        op="exp"
-    )
-
-    def _backward():
-        self.grad += e * output.grad
-
-    output._backward = _backward
-
-    return output
+        output._backward = _backward
+        return output
 
 
-def log(self):
-    """
-    Compute the natural logarithm of this value.
-        output = ln(x)
+    def backward(self):
+        """
+        Compute gradients for all nodes in the computation graph.
 
-    Creates a new node representing the natural logarithm.
+        Performs:
+        1. Topological sorting of the graph.
+        2. Seeds the output gradient with 1.0.
+        3. Traverses the graph in reverse topological order.
+        4. Calls each node's stored backward function.
 
-    During backpropagation, the derivative is:
-        d(ln(x))/dx = 1/x
-
-    Therefore:
-        self.grad += (1 / self.data) * output.grad
-
-    Note:
-        The input value must be greater than zero.
-    """
-    import math
-
-    output = Value(
-        data=math.log(self.data),
-        children=(self,),
-        op="log"
-    )
-
-    def _backward():
-        self.grad += (1.0 / self.data) * output.grad
-
-    output._backward = _backward
-
-    return output
+        After execution, every node's `grad` contains:
+            d(output) / d(node)
+        """
+        topo = []
+        visited = set()
 
 
-def tanh(self):
-    """
-    Apply the hyperbolic tangent activation function.
-        output = tanh(x)
+        def build_topo(v):
+            """
+            Recursively build a topological ordering of nodes.
+            """
+            if v not in visited:
+                visited.add(v)
+                for child in v._prev:
+                    build_topo(child)
+                topo.append(v)
 
-    The tanh function squashes values into the range [-1, 1]
-    and is commonly used as an activation function in neural
-    networks.
+        build_topo(self)
 
-    During backpropagation, the derivative is:
-        d(tanh(x))/dx = 1 - tanh²(x)
+        self.grad = 1.0
 
-    Therefore:
-        self.grad += (1 - output.data²) * output.grad
-    """
-    import math
+        for v in reversed(topo):
+            v._backward()
 
-    t = math.tanh(self.data)
-    output = Value(
-        data=t,
-        children=(self,),
-        op="tanh"
-    )
 
-    def _backward():
-        self.grad += (1 - t**2) * output.grad
+    def exp(self):
+        """
+        Compute the exponential of this value.
+            output = e^x
 
-    output._backward = _backward
+        Creates a new node representing the exponential function.
 
-    return output
+        During backpropagation, the derivative is:
+            d(e^x)/dx = e^x
+
+        Therefore:
+            self.grad += output.data * output.grad
+        """
+        import math
+
+        e = math.exp(self.data)
+        output = Value(
+            data=e,
+            children=(self,),
+            op="exp"
+        )
+
+        def _backward():
+            self.grad += e * output.grad
+
+        output._backward = _backward
+
+        return output
+
+
+    def log(self):
+        """
+        Compute the natural logarithm of this value.
+            output = ln(x)
+
+        Creates a new node representing the natural logarithm.
+
+        During backpropagation, the derivative is:
+            d(ln(x))/dx = 1/x
+
+        Therefore:
+            self.grad += (1 / self.data) * output.grad
+
+        Note:
+            The input value must be greater than zero.
+        """
+        import math
+
+        output = Value(
+            data=math.log(self.data),
+            children=(self,),
+            op="log"
+        )
+
+        def _backward():
+            self.grad += (1.0 / self.data) * output.grad
+
+        output._backward = _backward
+
+        return output
+
+
+    def tanh(self):
+        """
+        Apply the hyperbolic tangent activation function.
+            output = tanh(x)
+
+        The tanh function squashes values into the range [-1, 1]
+        and is commonly used as an activation function in neural
+        networks.
+
+        During backpropagation, the derivative is:
+            d(tanh(x))/dx = 1 - tanh²(x)
+
+        Therefore:
+            self.grad += (1 - output.data²) * output.grad
+        """
+        import math
+
+        t = math.tanh(self.data)
+        output = Value(
+            data=t,
+            children=(self,),
+            op="tanh"
+        )
+
+        def _backward():
+            self.grad += (1 - t**2) * output.grad
+
+        output._backward = _backward
+
+        return output
