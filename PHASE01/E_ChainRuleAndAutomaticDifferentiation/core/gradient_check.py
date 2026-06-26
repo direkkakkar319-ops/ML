@@ -33,8 +33,12 @@ def gradient_check(build_expr, x_val, h=1e-7):
     y.backward()
     autodiff_grad = x.grad
 
-    y_plus = build_expr(Value(x_val + h)).data
-    y_minus = build_expr(Value(x_val - h)).data
+    y_plus = build_expr(
+        Value(data=x_val + h)
+        ).data
+    y_minus = build_expr(
+        Value(data=x_val - h)
+        ).data
 
     numerical_grad = (y_plus - y_minus) / (2 * h)
 
