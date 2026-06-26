@@ -38,9 +38,10 @@ def gradient_check(build_expr, x_val, h=1e-7):
 
     numerical_grad = (y_plus - y_minus) / (2 * h)
 
-    diff = abs(autodiff_grad - numerical_grad)
+    diff = autodiff_grad - numerical_grad
+    per_diff = diff*100 # returns the changes in autodiff comapred to numerical gradient
 
-    return autodiff_grad, numerical_grad, diff
+    return autodiff_grad, numerical_grad, diff, per_diff
 
 
 def complex_expr(x):
@@ -63,8 +64,9 @@ def complex_expr(x):
     return (x ** 3 + x * 2 + 1).tanh()
 
 
-ad, num, diff = gradient_check(build_expr=complex_expr,x_val=0.5)
+ad, num, diff, per_diff = gradient_check(build_expr=complex_expr,x_val=0.5)
 
-print(f"Autodiff: {ad:.8f}")
-print(f"Numerical: {num:.8f}")
-print(f"Difference: {diff:.2f}")
+print(f"Autodiff: {ad}")
+print(f"Numerical: {num}")
+print(f"Difference: {diff}")
+print(f"Percentage Difference: {per_diff:.4f}")
