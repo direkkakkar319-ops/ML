@@ -1,0 +1,193 @@
+<!-- Made using gemini pro extended model -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gradient Variance & Training Noise</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    .panel {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+    .controls {
+      display: flex;
+      gap: 30px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 200px;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
+      background-color: #2563eb;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover { background-color: #1d4ed8; }
+    button.clear-btn { background-color: #dc2626; }
+    button.clear-btn:hover { background-color: #b91c1c; }
+    canvas {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="panel">
+    <h2>Training Loss Simulator</h2>
+    <p>Adjust the sliders to see how gradient variance and learning rate affect the stability of the loss curve. High variance creates erratic, noisy updates.</p>
+    
+    <div class="controls">
+      <div class="control-group">
+        <label for="variance">Gradient Variance: <span id="var-val">50</span></label>
+        <input type="range" id="variance" min="0" max="100" value="50">
+      </div>
+      <div class="control-group">
+        <label for="lr">Learning Rate: <span id="lr-val">0.10</span></label>
+        <input type="range" id="lr" min="0.01" max="0.5" step="0.01" value="0.10">
+      </div>
+      <div class="buttons">
+        <button onclick="runSimulation()">Simulate Training</button>
+        <button class="clear-btn" onclick="clearChart()">Clear History</button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="lossChart" width="900" height="400"></canvas>
+
+  <script>
+    // Initialize the Chart
+    const ctx = document.getElementById('lossChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: Array.from({length: 200}, (_, i) => i + 1),
+        datasets: []
+      },
+      options: {
+        responsive: true,
+        interaction: { intersect: false, mode: 'index' },
+        scales: {
+          x: { 
+            title: { display: true, text: 'Training Step (Mini-batches)', font: {weight: 'bold'} },
+            grid: { display: false }
+          },
+          y: { 
+            title: { display: true, text: 'Loss', font: {weight: 'bold'} },
+            suggestedMin: 0, 
+            suggestedMax: 120 
+          }
+        },
+        animation: { duration: 400 },
+        elements: { point: { radius: 0, hitRadius: 5 } },
+        plugins: { legend: { position: 'top' } }
+      }
+    });
+
+    // Update slider display values dynamically
+    document.getElementById('variance').addEventListener('input', (e) => {
+      document.getElementById('var-val').innerText = e.target.value;
+    });
+    document.getElementById('lr').addEventListener('input', (e) => {
+      document.getElementById('lr-val').innerText = parseFloat(e.target.value).toFixed(2);
+    });
+
+    // Core Simulation Logic
+    function runSimulation() {
+      const variance = parseFloat(document.getElementById('variance').value);
+      const lr = parseFloat(document.getElementById('lr').value);
+      const steps = 200;
+      const data = [];
+      
+      for (let t = 1; t <= steps; t++) {
+        // 1. The "True" Underlying Loss (Smooth exponential decay)
+        const trueLoss = 100 * Math.exp(-0.025 * t);
+        
+        // 2. Introduce Noise based on Variance and Learning Rate
+        // If variance is 0, noiseAmplitude is 0.
+        const noiseAmplitude = (variance * lr);
+        
+        // Random fluctuation between -1 and 1, scaled by amplitude
+        const randomFluctuation = (Math.random() - 0.5) * 2;
+        let noise = randomFluctuation * noiseAmplitude;
+        
+        // 3. Simulate "Spikes" (Erratic updates common in high variance)
+        if (variance > 60 && Math.random() < 0.05) {
+            noise += noiseAmplitude * 1.5; 
+        }
+
+        // Calculate final step loss, ensuring it doesn't drop below 0 unrealistically
+        let stepLoss = trueLoss + noise;
+        stepLoss = Math.max(0.5, stepLoss); 
+        
+        data.push(stepLoss);
+      }
+
+      // Fade older runs to gray so you can compare new runs against them
+      chart.data.datasets.forEach(ds => {
+        ds.borderColor = 'rgba(150, 150, 150, 0.2)';
+        ds.borderWidth = 1;
+      });
+
+      // Plot the new simulation run in blue
+      chart.data.datasets.push({
+        label: `Run (Var: ${variance}, LR: ${lr})`,
+        data: data,
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+        borderWidth: 2.5,
+        fill: false,
+        tension: 0.1 // Slight smoothing for the line segments
+      });
+
+      chart.update();
+    }
+
+    // Clear all lines from the chart
+    function clearChart() {
+        chart.data.datasets = [];
+        chart.update();
+    }
+
+    // Run one simulation automatically on page load
+    runSimulation();
+  </script>
+</body>
+</html>
