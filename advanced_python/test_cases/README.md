@@ -1,1 +1,1 @@
-youtube vedion link: for test_cases: https://www.youtube.com/watch?v=EgpLj86ZHFQ
+youtube video link: for test_cases: https://www.youtube.com/watch?v=EgpLj86ZHFQ

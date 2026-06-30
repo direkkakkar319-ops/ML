@@ -1,0 +1,1 @@
+youtube video link: for magic_methods: https://youtu.be/qqp6QN20CpE?si=pjy8cKDZI18SQudf

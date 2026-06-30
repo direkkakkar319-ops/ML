@@ -1,1 +1,1 @@
-youtube vedion link: for advanced_features: https://www.youtube.com/watch?v=6ViGc5NgdSw&t=155s
+youtube video link: for advanced_features: https://www.youtube.com/watch?v=6ViGc5NgdSw&t=155s
