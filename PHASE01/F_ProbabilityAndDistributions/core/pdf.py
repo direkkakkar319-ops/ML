@@ -53,5 +53,6 @@ def normal_pdf(x, mu, sigma): #Computes bellcurve -> CLT
     return coeff * math.exp(exponent)
 
 
-print(f"Uniform PDF: {uniform_pdf(x = 4, a = 0, b = 10)}")
-print(f"Normal PDF: {normal_pdf()}")
+if __name__ == "__main__":
+    print(f"Uniform PDF: {uniform_pdf(x = 4, a = 0, b = 10):.4f}")
+    print(f"Normal PDF: {normal_pdf(x=14, mu=10, sigma=2):.4f}")

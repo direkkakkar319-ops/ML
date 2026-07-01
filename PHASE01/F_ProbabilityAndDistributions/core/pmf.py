@@ -55,16 +55,17 @@ def possion_pmf(k, lam):
     return (lam ** k) * math.exp(-lam) / factorial(k)
     #      [(λ ** k)  * (e ** (-λ))]   / k! 
 
-print(f"Bernaulli PMF: {bernoulli_pmf(1, 0.8)}")
+if __name__ == "__main__":
+    print(f"Bernaulli PMF: {bernoulli_pmf(1, 0.8)}")
 
-probs = [
-    0.10,
-    0.20,
-    0.05,
-    0.25,
-    0.30,
-    0.10
-]
-print(f"Categorical PMF: {categorical_pmf(4, probs=probs)}")
+    probs = [
+        0.10,
+        0.20,
+        0.05,
+        0.25,
+        0.30,
+        0.10
+    ]
+    print(f"Categorical PMF: {categorical_pmf(4, probs=probs)}")
 
-print(f"Possion PMF: {possion_pmf(2, 4)}")
+    print(f"Possion PMF: {possion_pmf(2, 4)}")
