@@ -1,4 +1,5 @@
 import math 
+import matplotlib.pyplot as plt
 
 
 def uniform_pdf(x, a, b):
@@ -56,3 +57,23 @@ def normal_pdf(x, mu, sigma): #Computes bellcurve -> CLT
 if __name__ == "__main__":
     print(f"Uniform PDF: {uniform_pdf(x = 4, a = 0, b = 10):.4f}")
     print(f"Normal PDF: {normal_pdf(x=14, mu=10, sigma=2):.4f}")
+
+    x_u = [i/10 for i in range(-20, 121)]   # -2 to 12
+    y_u = [uniform_pdf(i, 0, 10) for i in x_u]
+
+    plt.plot(x_u, y_u)
+    plt.title("Uniform Distribution PDF")
+    plt.xlabel("x")
+    plt.ylabel("Density")
+    plt.grid(True)
+    plt.show()
+
+    x_n = [i/10 for i in range(-50, 51)]   # -5 to 5
+    y_n = [normal_pdf(i, 0, 1) for i in x_n]
+
+    plt.plot(x_n, y_n)
+    plt.title("Normal Distribution PDF")
+    plt.xlabel("x")
+    plt.ylabel("Density")
+    plt.grid(True)
+    plt.show()

@@ -1,4 +1,5 @@
 import math
+import matplotlib.pyplot as plt
 
 from probability_basics import factorial
 
@@ -69,3 +70,33 @@ if __name__ == "__main__":
     print(f"Categorical PMF: {categorical_pmf(4, probs=probs)}")
 
     print(f"Possion PMF: {possion_pmf(2, 4)}")
+
+    p = 0.8
+    x = [0, 1]
+    y = [bernoulli_pmf(k, p) for k in x]
+
+    plt.bar(x, y)
+    plt.xticks([0,1], ["Failure", "Success"])
+    plt.title("Bernoulli PMF")
+    plt.ylabel("Probability")
+    plt.show()
+
+    categories = range(len(probs))
+    y = [categorical_pmf(k, probs) for k in categories]
+
+    plt.bar(categories, y)
+    plt.xlabel("Category")
+    plt.ylabel("Probability")
+    plt.title("Categorical PMF")
+    plt.show()
+
+
+    lam = 4
+    x = range(15)
+    y = [possion_pmf(k, lam) for k in x]
+
+    plt.bar(x, y)
+    plt.xlabel("Number of events")
+    plt.ylabel("Probability")
+    plt.title("Poisson PMF (λ = 4)")
+    plt.show()
