@@ -49,6 +49,17 @@ class Value:
 
             d(output)/d(self)  = 1
             d(output)/d(other) = 1
+        
+        Examples:
+            >>> from value import Value
+            >>> a = Value(2.0, label="a")
+            >>> b = Value(3.0, label="b")
+            >>> c = a + b
+            >>> c.backward()
+            >>> a.grad
+            1.0
+            >>> b.grad
+            1.0
         """
         other = other if isinstance(other, Value) else Value(other)
         output = Value(
@@ -96,18 +107,15 @@ class Value:
                 x1.grad = do/dx1
                 x1.grad = do/dx1 = (do/dx1w1) * (dx1w1/dx1)
                 x1.grad = do/dx1 = (do/dx1w1) * (dx1w1/dx1) = (x1w1.grad) * (w1.data)
-                
-                    >>> # out = x * y
-                    >>> x.grad += out.grad * y.data
-                    >>> y.grad += out.grad * x.data
-
-                    >>> # x1w1 = x1 * w1
-                    >>> x1.grad += x1w1.grad * w1.data
-                    >>> w1.grad += x1w1.grad * x1.data
-
-                    >>> # x2w2 = x2 * w2
-                    >>> x2.grad += x2w2.grad * w2.data
-                    >>> w2.grad += x2w2.grad * x2.data
+                >>> # out = x * y
+                >>> x.grad += out.grad * y.data
+                >>> y.grad += out.grad * x.data
+                >>> # x1w1 = x1 * w1
+                >>> x1.grad += x1w1.grad * w1.data
+                >>> w1.grad += x1w1.grad * x1.data
+                >>> # x2w2 = x2 * w2
+                >>> x2.grad += x2w2.grad * w2.data
+                >>> w2.grad += x2w2.grad * x2.data
             """
             self.grad += other.data * output.grad
             other.grad += self.data * output.grad
@@ -136,6 +144,13 @@ class Value:
         """
         Support addition when Value appears on the right side.
             2 + Value(3)
+        
+        Examples:
+            >>> from value import Value
+            >>> a = Value(2.0, label="a")
+            >>> c = 3 + a
+            >>> c.data
+            5.0
         """
         return self + other
 
@@ -144,6 +159,13 @@ class Value:
         """
         Support multiplication when Value appears on the right side.
             2 * Value(3)
+
+        Examples:
+            >>> from value import Value
+            >>> a = Value(2.0, label="a")
+            >>> c = 3 * a
+            >>> c.data
+            6.0
         """
         return self * other
 
@@ -152,6 +174,13 @@ class Value:
         """
         Support reverse subtraction.
             5 - Value(2)
+
+        Examples:
+            >>> from value import Value
+            >>> a = Value(2.0, label="a")
+            >>> c = 5.0 - a
+            >>> c.data
+            3.0
         """
         return other + (-self)
 
@@ -163,6 +192,16 @@ class Value:
 
         Backpropagation uses:
             d(x^n)/dx = n * x^(n-1)
+
+        Examples:
+            >>> from value import Value
+            >>> a = Value(2.0, label="a")
+            >>> c = a ** 3.0
+            >>> c.data
+            8.0
+            >>> c.backward()
+            >>> a.grad
+            12.0
         """
         output = Value(
             data=self.data ** other, 
@@ -231,22 +270,16 @@ class Value:
             >>> w1 = Value(-3.0, label="w1")
             >>> w2 = Value(1.0, label="w2")
             >>> b = Value(6.7, label="b")
-            
             >>> x1w1 = x1 * w1; x1w1.label="x1 * w1"
             >>> x2w2 = x2 * w2; x2w2.label="x2 * w2"
             >>> x1w1x2w2 = x1w1 + x2w2; x1w1x2w2.label="(x1 * w1) + (x2 * w2)" 
             >>> n = x1w1x2w2 + b; n.label="n"
-            
             >>> O = n.tanh(); O.label="o"
-
             >>> O.backward()
-
             >>> round(x1.grad, 6)
             -1.904219
-
             >>> round(w1.grad, 6)
             1.269479
-
             >>> round(b.grad, 6)
             0.63474
         """
