@@ -183,70 +183,71 @@ class MLP:
         """
         return [parameter for layer in self.layers for parameter in layer.parameters()]
 
-print("-"*40)
-print("CLASS: Neuron")
-print("-"*40)
-x_neuron = [1.0, 2.0]
-neuron = Neuron(2)
-print(neuron(x_neuron))
-print()
+if __name__ == "__main__":
+    print("-"*40)
+    print("CLASS: Neuron")
+    print("-"*40)
+    x_neuron = [1.0, 2.0]
+    neuron = Neuron(2)
+    print(neuron(x_neuron))
+    print()
 
-print("-"*40)
-print("CLASS: Layer")
-print("-"*40)
-x_layer = [1.0, 2.0]
-layer = Layer(2, 3)
-print(layer(x_layer))
-print()
+    print("-"*40)
+    print("CLASS: Layer")
+    print("-"*40)
+    x_layer = [1.0, 2.0]
+    layer = Layer(2, 3)
+    print(layer(x_layer))
+    print()
 
-print("-"*40)
-print("CLASS: MLP")
-print("-"*40)
-x = [1.0, 2.0, 3.0]
-mlp = MLP(3, [4, 4, 1])
-print(mlp(x))
-print()
+    print("-"*40)
+    print("CLASS: MLP")
+    print("-"*40)
+    x = [1.0, 2.0, 3.0]
+    mlp = MLP(3, [4, 4, 1])
+    print(mlp(x))
+    print()
 
-print("-"*40)
-print("Parameters")
-print("-"*40)
-print(mlp.parameters())
+    print("-"*40)
+    print("Parameters")
+    print("-"*40)
+    print(mlp.parameters())
 
-dot = draw_dot(root=mlp(x=x))
-dot.render("graph_nn", cleanup=True)
+    dot = draw_dot(root=mlp(x=x))
+    dot.render("graph_nn", cleanup=True)
 
-print("-"*40)
-print("Using the nn.py")
-print("-"*40)
-xs = [
-    [2.0, 3.0, -1.0],
-    [3.0, -1.0, 0.5],
-    [0.5, 1.0, 1.0],
-    [1.0, 1,0, -1.0],
-]
-ys = [1.0, -1.0, 1.0, 1.0] # desired outputs
+    print("-"*40)
+    print("Using the nn.py")
+    print("-"*40)
+    xs = [
+        [2.0, 3.0, -1.0],
+        [3.0, -1.0, 0.5],
+        [0.5, 1.0, 1.0],
+        [1.0, 1,0, -1.0],
+    ]
+    ys = [1.0, -1.0, 1.0, 1.0] # desired outputs
 
-for k in range(20):
-    # Forward pass
-    y_pred = [mlp(x) for x in xs]
-    loss = sum([(y_out - y_gt) ** 2 for y_gt, y_out in zip(ys, y_pred)])
+    for k in range(20):
+        # Forward pass
+        y_pred = [mlp(x) for x in xs]
+        loss = sum([(y_out - y_gt) ** 2 for y_gt, y_out in zip(ys, y_pred)])
 
-    # grad=0
-    for p in mlp.parameters():
-        p.grad = 0 
+        # grad=0
+        for p in mlp.parameters():
+            p.grad = 0 
 
-    # backward pass
-    loss.backward()
+        # backward pass
+        loss.backward()
 
-    # update
-    for p in mlp.parameters():
-        p.data += -0.05 * p.grad 
+        # update
+        for p in mlp.parameters():
+            p.data += -0.05 * p.grad 
 
-    print(k, loss.data)
-# print("gradient of a neuron")
-# print(mlp.layers[0].neurons[0].w[0].grad)
-# print("value of a neuron")
-# print(mlp.layers[0].neurons[0].w[0].data)
+        print(k, loss.data)
+    # print("gradient of a neuron")
+    # print(mlp.layers[0].neurons[0].w[0].grad)
+    # print("value of a neuron")
+    # print(mlp.layers[0].neurons[0].w[0].data)
 
-dot = draw_dot(root=loss)
-dot.render("graph_nn_loss", cleanup=True)
+    dot = draw_dot(root=loss)
+    dot.render("graph_nn_loss", cleanup=True)
