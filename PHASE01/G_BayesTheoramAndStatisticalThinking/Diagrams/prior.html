@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Bayesian Prior → Posterior Visualization</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+    font-family:Arial;
+    background:#f4f6f8;
+    text-align:center;
+}
+
+.container{
+    width:900px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    margin-top:30px;
+    border-radius:12px;
+    box-shadow:0px 5px 15px rgba(0,0,0,.2);
+}
+
+canvas{
+    max-width:850px;
+}
+
+input{
+    width:500px;
+}
+
+.info{
+    margin-top:20px;
+    font-size:18px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>Bayesian Learning</h1>
+
+<h2>Prior → Likelihood → Posterior</h2>
+
+<canvas id="chart"></canvas>
+
+<br><br>
+
+<label><b>Amount of Evidence (Training Data)</b></label><br>
+
+<input type="range"
+min="0"
+max="100"
+value="10"
+id="slider">
+
+<div class="info">
+
+<p>
+🔵 Prior = Initial Belief
+</p>
+
+<p>
+🟢 Likelihood = Evidence from Data
+</p>
+
+<p>
+🔴 Posterior = Updated Belief
+</p>
+
+<h3 id="text"></h3>
+
+</div>
+
+</div>
+
+<script>
+
+const ctx=document.getElementById('chart');
+
+const x=[];
+
+for(let i=0;i<=100;i++)
+x.push(i/100);
+
+function gaussian(x,mean,std){
+
+return Math.exp(
+-((x-mean)*(x-mean))/(2*std*std)
+);
+
+}
+
+function createCurve(mean,std){
+
+let arr=[];
+
+for(let v of x)
+arr.push(gaussian(v,mean,std));
+
+return arr;
+
+}
+
+let prior=createCurve(.5,.12);
+
+let likelihood=createCurve(.8,.08);
+
+let posterior=createCurve(.55,.11);
+
+const chart=new Chart(ctx,{
+type:'line',
+
+data:{
+labels:x,
+
+datasets:[
+
+{
+label:'Prior',
+data:prior,
+borderColor:'blue',
+fill:false,
+borderWidth:3
+},
+
+{
+label:'Likelihood',
+data:likelihood,
+borderColor:'green',
+fill:false,
+borderWidth:3
+},
+
+{
+label:'Posterior',
+data:posterior,
+borderColor:'red',
+fill:false,
+borderWidth:4
+}
+
+]
+},
+
+options:{
+responsive:true,
+
+plugins:{
+legend:{
+labels:{
+font:{
+size:16
+}
+}
+}
+},
+
+scales:{
+
+x:{
+title:{
+display:true,
+text:'Probability of Parameter θ'
+}
+},
+
+y:{
+title:{
+display:true,
+text:'Belief'
+}
+}
+
+}
+
+}
+
+});
+
+const slider=document.getElementById("slider");
+const text=document.getElementById("text");
+
+function update(){
+
+let evidence=Number(slider.value);
+
+let posteriorMean=0.5+(evidence/100)*(0.8-0.5);
+
+let posteriorStd=0.12-(evidence/100)*0.07;
+
+posterior=createCurve(
+posteriorMean,
+posteriorStd
+);
+
+chart.data.datasets[2].data=posterior;
+
+chart.update();
+
+text.innerHTML=
+`
+Training Data = ${evidence}%<br><br>
+
+Prior belief: θ ≈ 0.50<br>
+
+Evidence suggests θ ≈ 0.80<br>
+
+Posterior shifts toward the evidence.<br>
+
+More data ⇒ Posterior becomes narrower and moves closer to the likelihood.
+`;
+
+}
+
+slider.oninput=update;
+
+update();
+
+</script>
+
+</body>
+</html>
