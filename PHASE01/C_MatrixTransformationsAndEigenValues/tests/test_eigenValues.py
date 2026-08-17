@@ -1,7 +1,9 @@
-import sys
 import os
-import pytest 
+import sys
+
 import numpy as np
+import pytest
+
 sys.path.append(r"E:\ML\PHASE01\C_MatrixTransformationsAndEigenValues\core")
 from eigenValues import eigenvalues_2x2, eigenvector_2x
 

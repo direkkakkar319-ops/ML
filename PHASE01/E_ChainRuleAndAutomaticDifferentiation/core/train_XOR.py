@@ -1,4 +1,5 @@
 import random
+
 from mlp import MLP
 
 random.seed(42)
@@ -9,17 +10,17 @@ ys = [-1, 1, 1, -1]  # XOR pattern (using -1/1 for tanh)
 
 for step in range(100):
     preds = [model(x) for x in xs]
-    loss = sum((pred-y)**2 for pred, y in zip(preds, ys))
+    loss = sum((pred - y) ** 2 for pred, y in zip(preds, ys))
 
     for parameter in model.parameters():
-        parameter.grad = 0.0 
-    
+        parameter.grad = 0.0
+
     loss.backward()
 
     lr = 0.05
     for parameter in model.parameters():
         parameter.data -= lr * parameter.grad
-    
+
     if step % 20 == 0:
         print(f"step{step} loss={loss.data:.4f}")
 

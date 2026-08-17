@@ -6,33 +6,30 @@ Question
     Compare convergence speed with and without
     momentum on f(x) = x^4 - 3x^2.
 """
+
 import sys
+
 sys.path.append(r"E:\ML\PHASE01\D_CalculusForML\core")
-from partialDerivative import numerical_gradient
 from gradient_descent import gradient_descent
+from partialDerivative import numerical_gradient
 
 
 def f(point):
     x = point[0]
-    return x**4 - 3*x**2
+    return x**4 - 3 * x**2
 
 
 def momentum_gradient_descent(f, point, steps, lr, momentum=0.95):
-    velocity = [0.0]   
+    velocity = [0.0]
     point = point.copy()
 
     for _ in range(steps):
         gradient = numerical_gradient(f, point)
-        velocity = [
-            momentum * v + lr * g
-            for v, g in zip(velocity, gradient)
-        ]
-        point = [
-            p - v
-            for p, v in zip(point, velocity)
-        ]
+        velocity = [momentum * v + lr * g for v, g in zip(velocity, gradient)]
+        point = [p - v for p, v in zip(point, velocity)]
 
     return point
+
 
 if __name__ == "__main__":
     steps = 500

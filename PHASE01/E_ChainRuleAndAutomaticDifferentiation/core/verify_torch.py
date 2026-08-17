@@ -1,5 +1,4 @@
-import torch 
-
+import torch
 
 x1 = torch.tensor(data=2.0, requires_grad=True)
 x2 = torch.tensor(data=3.0, requires_grad=True)

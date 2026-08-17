@@ -15,8 +15,9 @@ def trace(root):
     build(root)
     return nodes, edges
 
+
 def draw_dot(root):
-    dot = Digraph(format='svg', graph_attr={'rankdir': 'LR'})  # LR = left to right
+    dot = Digraph(format="svg", graph_attr={"rankdir": "LR"})  # LR = left to right
 
     nodes, edges = trace(root)
 
@@ -27,7 +28,7 @@ def draw_dot(root):
         dot.node(
             name=uid,
             label=f"{{ {n.label} | data {n.data:.4f} | grad {n.grad:.4f} }}",
-            shape='record'
+            shape="record",
         )
 
         if n._op:

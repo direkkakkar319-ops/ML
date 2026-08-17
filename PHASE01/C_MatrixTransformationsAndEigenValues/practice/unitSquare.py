@@ -2,19 +2,18 @@
 Question
     Apply `rotation`, `scaling`, and `shearing` to a unit square
     (corners at [0,0], [1,0], [1,1], [0,1]).
-    Print the transformed corners for each. Verify that rotation 
+    Print the transformed corners for each. Verify that rotation
     preserves distances between corners.
 """
-import sys
-import os
-import math
 
+import math
+import os
+import sys
 
 sys.path.append(r"E:\ML\PHASE01\C_MatrixTransformationsAndEigenValues\core")
-from transformation import rotation_2d, scaling_2d, shearing_2d, mat_vec_mul
+from transformation import mat_vec_mul, rotation_2d, scaling_2d, shearing_2d
 
-
-squares = [[0,0], [1,0], [1,1], [0,1]]
+squares = [[0, 0], [1, 0], [1, 1], [0, 1]]
 
 
 # transformation matrices
@@ -38,22 +37,14 @@ print(f"Sheared Squares: {sheared}")
 
 # verification
 def distance(p1, p2):
-    return math.sqrt(
-        (p1[0] - p2[0])** 2 + (p1[1] - p2[1]) ** 2
-    )
+    return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+
 
 print("Distance Verification (Rotation)")
 
-pairs = [
-    (0, 1),  # edges
-    (1, 2),
-    (2, 3),
-    (3, 0),
-    (0, 2),  # diagonals
-    (1, 3)
-]
+pairs = [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2), (1, 3)]  # edges  # diagonals
 
-for i , j in pairs:
+for i, j in pairs:
     before = distance(squares[i], squares[j])
     after = distance(rotated[i], rotated[j])
 

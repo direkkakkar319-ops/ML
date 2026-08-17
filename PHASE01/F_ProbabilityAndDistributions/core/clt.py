@@ -18,7 +18,7 @@ if __name__ == "__main__":
     def dist_fn():
         """Simulation of a dice"""
         return random.randint(1, 6)
-    
+
     print(f"Central Limit Theoram: {demonstrate_clt(
         dist_fn=dist_fn,
         n_samples=5,

@@ -1,21 +1,24 @@
 # %%
 import math
-import numpy as np 
-import matplotlib.pyplot as plt 
+
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 # %%
 def f(x):
-    return 3*x**2 - 4*x + 5
+    return 3 * x**2 - 4 * x + 5
+
 
 # %%
 xs = np.arange(-5, 5, 0.25)
 ys = f(xs)
-plt.plot(xs,ys)
+plt.plot(xs, ys)
 
 # %%
-h=0.00000001
-x=3
-print((f(x+h)-f(x))/h)
+h = 0.00000001
+x = 3
+print((f(x + h) - f(x)) / h)
 
 # %%
 # More complex
@@ -26,7 +29,7 @@ d = a * b + c
 print(d)
 
 # %%
-h=0.00001
+h = 0.00001
 
 # inputs
 a = 2.0
@@ -35,10 +38,10 @@ c = 10.0
 
 d1 = a * b + c
 
-c += h 
+c += h
 d2 = a * b + c
 
 print("d1", d1)
 print("d2", d2)
-print("Slope", ((d2-d1)/h))
+print("Slope", ((d2 - d1) / h))
 # %%

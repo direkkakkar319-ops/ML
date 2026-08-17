@@ -1,15 +1,19 @@
-# %% 
+# %%
 """
 Used to construct or buildt a new method
 """
+
+
 class React:
     def __init__(self, x, y):
-        self.x = x 
+        self.x = x
         self.y = y
+
+
 React(2, 3)
 
 
-# %% 
+# %%
 """__add__()"""
 str1 = "hello"
 str2 = "world"

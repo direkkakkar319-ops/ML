@@ -1,15 +1,15 @@
 # %%
 # Libraries
-import numpy as np 
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
+import numpy as np
 
 # Python functions and classes
 from value import Value
 from visualise import draw_dot
 
-
 # %%
-plt.plot(np.arange(-5, 5, 0.25), np.tanh(np.arange(-5, 5, 0.25))); plt.grid()
+plt.plot(np.arange(-5, 5, 0.25), np.tanh(np.arange(-5, 5, 0.25)))
+plt.grid()
 
 
 # %%
@@ -19,13 +19,18 @@ w1 = Value(-3.0, label="w1")
 w2 = Value(1.0, label="w2")
 b = Value(6.7, label="b")
 
-x1w1 = x1 * w1; x1w1.label="x1 * w1"
-x2w2 = x2 * w2; x2w2.label="x2 * w2"
+x1w1 = x1 * w1
+x1w1.label = "x1 * w1"
+x2w2 = x2 * w2
+x2w2.label = "x2 * w2"
 
-x1w1x2w2 = x1w1 + x2w2; x1w1x2w2.label="(x1 * w1) + (x2 * w2)" 
-n = x1w1x2w2 + b; n.label="n"
+x1w1x2w2 = x1w1 + x2w2
+x1w1x2w2.label = "(x1 * w1) + (x2 * w2)"
+n = x1w1x2w2 + b
+n.label = "n"
 # ----------------------
-O = n.tanh(); O.label="o"
+O = n.tanh()
+O.label = "o"
 # ----------------------
 
 
@@ -63,9 +68,9 @@ O.backward()
 
 
 # %%
-print("-"*40)
+print("-" * 40)
 print(".tanh()")
-print("-"*40)
+print("-" * 40)
 
 print(f"x1: {x1}")
 print(f"w1: {w1}")
@@ -85,14 +90,20 @@ w1 = Value(-3.0, label="w1")
 w2 = Value(1.0, label="w2")
 b = Value(6.7, label="b")
 
-x1w1 = x1 * w1; x1w1.label="x1 * w1"
-x2w2 = x2 * w2; x2w2.label="x2 * w2"
+x1w1 = x1 * w1
+x1w1.label = "x1 * w1"
+x2w2 = x2 * w2
+x2w2.label = "x2 * w2"
 
-x1w1x2w2 = x1w1 + x2w2; x1w1x2w2.label="(x1 * w1) + (x2 * w2)" 
-n = x1w1x2w2 + b; n.label="n"
+x1w1x2w2 = x1w1 + x2w2
+x1w1x2w2.label = "(x1 * w1) + (x2 * w2)"
+n = x1w1x2w2 + b
+n.label = "n"
 # ----------------------
-e = (2*n).exp(); e.label="e"
-O = (e-1) / (e+1); O.label="o"
+e = (2 * n).exp()
+e.label = "e"
+O = (e - 1) / (e + 1)
+O.label = "o"
 # ----------------------
 
 
@@ -100,9 +111,9 @@ O = (e-1) / (e+1); O.label="o"
 O.backward()
 
 # %%
-print("-"*40)
+print("-" * 40)
 print(".exp()")
-print("-"*40)
+print("-" * 40)
 
 print(f"x1: {x1}")
 print(f"w1: {w1}")
@@ -120,11 +131,10 @@ filename = dot.render("graph_neural_net_exp", cleanup=True)
 # %%
 import torch as th
 
-
 # %%
-print("-"*40)
+print("-" * 40)
 print("PyTorch-->.tanh()")
-print("-"*40)
+print("-" * 40)
 
 
 # %%

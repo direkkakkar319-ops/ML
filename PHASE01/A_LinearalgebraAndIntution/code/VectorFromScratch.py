@@ -67,26 +67,34 @@ class Matrix:
 
     def __matmul__(self, other):
         if isinstance(other, Vector):
-            return Vector([
-                sum(self.rows[i][j] * other.components[j] for j in range(self.shape[1]))
-                for i in range(self.shape[0])
-            ])
+            return Vector(
+                [
+                    sum(
+                        self.rows[i][j] * other.components[j]
+                        for j in range(self.shape[1])
+                    )
+                    for i in range(self.shape[0])
+                ]
+            )
         rows = []
         for i in range(self.shape[0]):
             row = []
             for j in range(other.shape[1]):
-                row.append(sum(
-                    self.rows[i][k] * other.rows[k][j]
-                    for k in range(self.shape[1])
-                ))
+                row.append(
+                    sum(
+                        self.rows[i][k] * other.rows[k][j] for k in range(self.shape[1])
+                    )
+                )
             rows.append(row)
         return Matrix(rows)
 
     def transpose(self):
-        return Matrix([
-            [self.rows[j][i] for j in range(self.shape[0])]
-            for i in range(self.shape[1])
-        ])
+        return Matrix(
+            [
+                [self.rows[j][i] for j in range(self.shape[0])]
+                for i in range(self.shape[1])
+            ]
+        )
 
     def __repr__(self):
         return f"Matrix({self.rows})"
@@ -121,7 +129,7 @@ print(f"OUTPUT: {output}")
 print("=" * 40)
 print()
 print("This is what a neural network layer does -- matrix multiplication.")
-print() 
+print()
 
 
 def is_linearly_independent(vectors):
@@ -172,10 +180,10 @@ v2 = Vector([1, 1, 0])
 v3 = Vector([1, 1, 1])
 basis = gram_schmidt([v1, v2, v3])
 for i, u in enumerate(basis):
-    print("="*40)
-    print(f"u{i+1} = {u}") 
+    print("=" * 40)
+    print(f"u{i+1} = {u}")
     print(f"  |u{i+1}| = {u.magnitude():.6f}")
-    print("="*40)
+    print("=" * 40)
     print()
 
 print("=" * 40)
@@ -183,12 +191,12 @@ print(f"u1 . u2 = {basis[0].dot(basis[1]):.6f}")
 print("=" * 40)
 print()
 
-print("="* 40)
+print("=" * 40)
 print(f"u1 · u3 = {basis[0].dot(basis[2]):.6f}")
-print("="* 40)
+print("=" * 40)
 print()
 
-print("="* 40)
+print("=" * 40)
 print(f"u2 · u3 = {basis[1].dot(basis[2]):.6f}")
-print("="* 40)
-print() 
+print("=" * 40)
+print()

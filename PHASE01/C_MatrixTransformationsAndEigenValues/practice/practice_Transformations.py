@@ -1,27 +1,22 @@
 """
 Question
-    1.  Create a composition of three transformations 
+    1.  Create a composition of three transformations
         (rotate 30 degrees, scale by [1.5, 0.8], shear with kx=0.3)
         and apply it to 8 points arranged in a circle .
-    
+
     2.  Print before and after coordinates .
-    
+
     3.  Compute the determinant of the composed matrix and verify
         it equals the product of the individual determinants .
 """
-import sys
-import os
+
 import math
+import os
+import sys
 
 sys.path.append(r"E:\ML\PHASE01\C_MatrixTransformationsAndEigenValues\core")
-from transformation import (
-    rotation_2d,
-    scaling_2d,
-    shearing_2d,
-    mat_mul,
-    mat_vec_mul,
-)
 from detVolume import det_2x2
+from transformation import mat_mul, mat_vec_mul, rotation_2d, scaling_2d, shearing_2d
 
 # ----------------------------------
 # create transformation matrices
@@ -42,10 +37,10 @@ C = mat_mul(SH, mat_mul(S, R))
 # -----------------------------------
 points = []
 for i in range(8):
-    angle = math.radians(i*45)
+    angle = math.radians(i * 45)
     x = math.cos(angle)
     y = math.sin(angle)
-    points.append([x,y])
+    points.append([x, y])
 
 
 # ----------------------------------
@@ -54,13 +49,9 @@ for i in range(8):
 print("Original -> Transformed")
 
 for p in points:
-    transformed = mat_vec_mul(C,p)
-    
-    print(
-        f"{[round(x,4) for x in p]}"
-        f"-->"
-        f"{[round(x,4) for x in transformed]}"
-    )
+    transformed = mat_vec_mul(C, p)
+
+    print(f"{[round(x,4) for x in p]}" f"-->" f"{[round(x,4) for x in transformed]}")
 
 
 # ----------------
@@ -80,4 +71,4 @@ product = DR * DS * DSH
 
 print(f"Product of `rotated`, `scaled`, `sheared` matricx: {product}")
 print(f"Transformed Matrices: {C}")
-print(f"Verification: {abs(DC - product) < 1e-10}") # verification
+print(f"Verification: {abs(DC - product) < 1e-10}")  # verification

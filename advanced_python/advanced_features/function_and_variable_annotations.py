@@ -2,6 +2,7 @@ name: str = "Direk"
 age: int = "19"
 is_student: bool = True
 
+
 # Funcrion annotations
 def greet(person: str, age: int) -> str:
     """
@@ -12,6 +13,7 @@ def greet(person: str, age: int) -> str:
     :return: A greeting message (expected to be a string).
     """
     return f"Hello, {person}! You are {age} years old."
+
 
 # Using the function
 greeting_message = greet(person=name, age=age)

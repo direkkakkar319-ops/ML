@@ -1,9 +1,13 @@
 import math
-from transformation import rotation_2d, scaling_2d, shearing_2d, reflection_y
+
+from transformation import reflection_y, rotation_2d, scaling_2d, shearing_2d
 
 """determinant as volume scaling factor"""
+
+
 def det_2x2(matrix):
     return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
+
 
 print(f"det(rotation 45) = {det_2x2(rotation_2d(math.pi/4)):.4f}")
 print(f"det(scale 2,3)   = {det_2x2(scaling_2d(2, 3)):.1f}")

@@ -1,6 +1,5 @@
 from value import Value
 
-
 x1 = Value(data=2.0)
 x2 = Value(data=3.0)
 
@@ -18,7 +17,7 @@ print(f"dy/dx2 = {x2.grad}")
 a = Value(data=2.0)
 b = Value(data=-3.0)
 c = Value(data=10.0)
-f = (a*b+c).relu() 
+f = (a * b + c).relu()
 
 f.backward()
 

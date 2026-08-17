@@ -1,6 +1,7 @@
-import pytest
-import sys
 import math
+import sys
+
+import pytest
 
 sys.path.append(r"E:\ML\PHASE01\E_ChainRuleAndAutomaticDifferentiation\core")
 from value import Value
@@ -9,8 +10,8 @@ from value import Value
 @pytest.fixture()
 def power_function():
     x = Value(data=2)
-    y = x ** 3
-    return x,y
+    y = x**3
+    return x, y
 
 
 def test_value(power_function):

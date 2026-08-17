@@ -10,8 +10,7 @@ class Value:
     - _prev: parent nodes that produced this value
     """
 
-
-    def __init__(self, data, _children=(), op='', label=''):
+    def __init__(self, data, _children=(), op="", label=""):
         """
         Initialize a Value node.
 
@@ -27,7 +26,6 @@ class Value:
         self._op = op
         self.label = label
 
-
     def __repr__(self):
         """
         Return a readable string representation of the node.
@@ -35,7 +33,6 @@ class Value:
         Useful for debugging and inspecting values and gradients.
         """
         return f"Value(data={self.data:.4f}, grad={self.grad:.4f})"
-
 
     def __add__(self, other):
         """
@@ -49,7 +46,7 @@ class Value:
 
             d(output)/d(self)  = 1
             d(output)/d(other) = 1
-        
+
         Examples:
             >>> from value import Value
             >>> a = Value(2.0, label="a")
@@ -62,11 +59,7 @@ class Value:
             1.0
         """
         other = other if isinstance(other, Value) else Value(other)
-        output = Value(
-            data=self.data + other.data, 
-            _children=(self, other), 
-            op="+"
-            )
+        output = Value(data=self.data + other.data, _children=(self, other), op="+")
 
         def _backward():
             """
@@ -77,7 +70,6 @@ class Value:
 
         output._backward = _backward
         return output
-
 
     def __mul__(self, other):
         """
@@ -93,11 +85,7 @@ class Value:
             d(output)/d(other) = self.data
         """
         other = other if isinstance(other, Value) else Value(other)
-        output = Value(
-            data=self.data * other.data,
-            _children=(self, other),
-            op="*"
-            )
+        output = Value(data=self.data * other.data, _children=(self, other), op="*")
 
         def _backward():
             """
@@ -122,7 +110,6 @@ class Value:
 
         output._backward = _backward
         return output
-    
 
     def __neg__(self):
         """
@@ -131,7 +118,6 @@ class Value:
         """
         return self * -1
 
-
     def __sub__(self, other):
         """
         Subtract another value.
@@ -139,12 +125,11 @@ class Value:
         """
         return self + (-other)
 
-
     def __radd__(self, other):
         """
         Support addition when Value appears on the right side.
             2 + Value(3)
-        
+
         Examples:
             >>> from value import Value
             >>> a = Value(2.0, label="a")
@@ -153,7 +138,6 @@ class Value:
             5.0
         """
         return self + other
-
 
     def __rmul__(self, other):
         """
@@ -169,7 +153,6 @@ class Value:
         """
         return self * other
 
-
     def __rsub__(self, other):
         """
         Support reverse subtraction.
@@ -183,7 +166,6 @@ class Value:
             3.0
         """
         return other + (-self)
-
 
     def __pow__(self, other):
         """
@@ -203,18 +185,13 @@ class Value:
             >>> a.grad
             12.0
         """
-        output = Value(
-            data=self.data ** other, 
-            _children=(self,), 
-            op=f"**{other}"
-            )
+        output = Value(data=self.data**other, _children=(self,), op=f"**{other}")
 
         def _backward():
             self.grad += other * (self.data ** (other - 1)) * output.grad
 
         output._backward = _backward
         return output
-
 
     def __truediv__(self, other):
         """
@@ -225,10 +202,9 @@ class Value:
         additional gradient logic is required.
         """
         if isinstance(other, Value):
-            return self * (other ** -1)
+            return self * (other**-1)
         else:
             return self * (Value(other) ** -1)
-
 
     def relu(self):
         """
@@ -238,18 +214,13 @@ class Value:
         During backpropagation:
             gradient = 1 if output > 0 else 0
         """
-        output = Value(
-            data=max(0, self.data),
-            _children=(self,), 
-            op="relu"
-            )
+        output = Value(data=max(0, self.data), _children=(self,), op="relu")
 
         def _backward():
             self.grad += (1.0 if output.data > 0 else 0.0) * output.grad
 
         output._backward = _backward
         return output
-
 
     def backward(self):
         """
@@ -272,7 +243,7 @@ class Value:
             >>> b = Value(6.7, label="b")
             >>> x1w1 = x1 * w1; x1w1.label="x1 * w1"
             >>> x2w2 = x2 * w2; x2w2.label="x2 * w2"
-            >>> x1w1x2w2 = x1w1 + x2w2; x1w1x2w2.label="(x1 * w1) + (x2 * w2)" 
+            >>> x1w1x2w2 = x1w1 + x2w2; x1w1x2w2.label="(x1 * w1) + (x2 * w2)"
             >>> n = x1w1x2w2 + b; n.label="n"
             >>> O = n.tanh(); O.label="o"
             >>> O.backward()
@@ -303,7 +274,6 @@ class Value:
         for v in reversed(topo):
             v._backward()
 
-
     def exp(self):
         """
         Compute the exponential of this value.
@@ -320,11 +290,7 @@ class Value:
         import math
 
         e = math.exp(self.data)
-        output = Value(
-            data=e,
-            _children=(self,),
-            op="exp"
-        )
+        output = Value(data=e, _children=(self,), op="exp")
 
         def _backward():
             self.grad += e * output.grad
@@ -332,7 +298,6 @@ class Value:
         output._backward = _backward
 
         return output
-
 
     def log(self):
         """
@@ -352,11 +317,7 @@ class Value:
         """
         import math
 
-        output = Value(
-            data=math.log(self.data),
-            _children=(self,),
-            op="log"
-        )
+        output = Value(data=math.log(self.data), _children=(self,), op="log")
 
         def _backward():
             self.grad += (1.0 / self.data) * output.grad
@@ -364,7 +325,6 @@ class Value:
         output._backward = _backward
 
         return output
-
 
     def tanh(self):
         """
@@ -384,11 +344,7 @@ class Value:
         import math
 
         t = math.tanh(self.data)
-        output = Value(
-            data=t,
-            _children=(self,),
-            op="tanh"
-        )
+        output = Value(data=t, _children=(self,), op="tanh")
 
         def _backward():
             """
@@ -408,15 +364,19 @@ class Value:
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod(verbose=True)
     a = Value(2.0, label="a")
     b = Value(-3.0, label="b")
     c = Value(10.0, label="c")
     f = Value(-2.0, label="f")
 
-    e = a*b; e.label="e"
-    d = e+c; d.label="d"
-    L = d*f; L.label="L"
+    e = a * b
+    e.label = "e"
+    d = e + c
+    d.label = "d"
+    L = d * f
+    L.label = "L"
 
     print(f"L._prev: {L._prev}")
     print(f"L._op: {L._op}")
@@ -440,26 +400,26 @@ if __name__ == "__main__":
     # dL/db = (dL/de) * (de/db) = (-2.0) * (2.0) = -4.0
     a.grad = 6.0
     b.grad = -4.0
-    
+
     # Visulize the code expressions we made
     from visualise import draw_dot
+
     dot = draw_dot(root=L)
     filename = dot.render("graph", cleanup=True)
     print(filename)
-
 
     def manual_forward_pass():
         """
         Will continously will make the value of `L` Positive
         """
-        a.data += 0.01*a.grad
-        b.data += 0.01*b.grad 
-        c.data += 0.01*c.grad
-        f.data += 0.01*f.grad 
-        
-        e = a*b
-        d = e+c
-        L = d*f
-        print(L.data) # -7.286496
+        a.data += 0.01 * a.grad
+        b.data += 0.01 * b.grad
+        c.data += 0.01 * c.grad
+        f.data += 0.01 * f.grad
+
+        e = a * b
+        d = e + c
+        L = d * f
+        print(L.data)  # -7.286496
 
     manual_forward_pass()

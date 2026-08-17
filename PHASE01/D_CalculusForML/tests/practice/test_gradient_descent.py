@@ -1,9 +1,10 @@
 import sys
+
 import numpy as np
 import pytest
 
 sys.path.append(r"E:\ML\PHASE01\D_CalculusForML\practice")
-from gradient_descent import f , gradient_descent
+from gradient_descent import f, gradient_descent
 
 
 def test_gradient_descent():

@@ -3,13 +3,13 @@ class Filemanager:
         self.filename = filename
         self.mode = mode
         self.file = None
-    
+
     def __enter__(self):
         # Open a file
         self.file = open(self.filename, self.mode)
         print(f"Opening a file {self.filename}")
         return self.file
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         # Close the file
         self.file.close()
@@ -18,6 +18,7 @@ class Filemanager:
         if exc_type:
             print(f"An excpetion occured: {exc_val}")
         return True
+
 
 if __name__ == "__main__":
     with Filemanager("example.txt", "w") as file:

@@ -1,9 +1,9 @@
 """NumPy handles all of this with optimized routines"""
+
 import numpy as np
 
 theta = np.pi / 4
-R = np.array([[np.cos(theta), -np.sin(theta)],
-              [np.sin(theta),  np.cos(theta)]])
+R = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
 
 point = np.array([1.0, 0.0])
 print(f"Rotate (1,0) by 45 deg: {R @ point}")
@@ -35,13 +35,17 @@ print(f"Original:\n{B}")
 print(f"Reconstructed:\n{reconstructed}")
 
 """3D rotation using Numpy"""
+
+
 def rotation_3d_z(theta):
     c, s = np.cos(theta), np.sin(theta)
     return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
 
+
 def rotation_3d_x(theta):
     c, s = np.cos(theta), np.sin(theta)
     return np.array([[1, 0, 0], [0, c, -s], [0, s, c]])
+
 
 if __name__ == "main":
     point_3d = np.array([1.0, 0.0, 0.0])

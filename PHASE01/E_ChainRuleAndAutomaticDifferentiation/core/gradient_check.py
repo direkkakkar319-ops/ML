@@ -33,17 +33,15 @@ def gradient_check(build_expr, x_val, h=1e-7):
     y.backward()
     autodiff_grad = x.grad
 
-    y_plus = build_expr(
-        Value(data=x_val + h)
-        ).data
-    y_minus = build_expr(
-        Value(data=x_val - h)
-        ).data
+    y_plus = build_expr(Value(data=x_val + h)).data
+    y_minus = build_expr(Value(data=x_val - h)).data
 
     numerical_grad = (y_plus - y_minus) / (2 * h)
 
     diff = autodiff_grad - numerical_grad
-    per_diff = diff*100 # returns the changes in autodiff comapred to numerical gradient
+    per_diff = (
+        diff * 100
+    )  # returns the changes in autodiff comapred to numerical gradient
 
     return autodiff_grad, numerical_grad, diff, per_diff
 
@@ -65,10 +63,10 @@ def complex_expr(x):
     Returns:
         A Value representing the computed expression.
     """
-    return (x ** 3 + x * 2 + 1).tanh()
+    return (x**3 + x * 2 + 1).tanh()
 
 
-ad, num, diff, per_diff = gradient_check(build_expr=complex_expr,x_val=0.5)
+ad, num, diff, per_diff = gradient_check(build_expr=complex_expr, x_val=0.5)
 
 print(f"Autodiff: {ad}")
 print(f"Numerical: {num}")

@@ -1,6 +1,6 @@
 import random
-import numpy as np
 
+import numpy as np
 
 random.seed(42)
 
@@ -21,7 +21,7 @@ for epoch in range(200):
     for x, y in zip(xs, ys):
         pred = w * x + b
         error = pred - y
-        total_loss += error ** 2
+        total_loss += error**2
         dw += 2 * error * x
         db += 2 * error
     dw /= len(xs)
@@ -32,14 +32,13 @@ for epoch in range(200):
     if epoch % 40 == 0 or epoch == 199:
         print(f"epoch {epoch:3d}  w={w:.4f}  b={b:.4f}  loss={total_loss:.6f}")
 
-print("="*40)
+print("=" * 40)
 print("Using Random")
-print("="*40)
+print("=" * 40)
 print(f"\nLearned: y = {w:.2f}x + {b:.2f}")
 print(f"Actual:  y = 2x + 1")
-print("-"*40)
+print("-" * 40)
 print()
-
 
 
 # ------------
@@ -54,14 +53,14 @@ lr = 0.01
 for epoch in range(200):
     pred = w * x + b
     error = pred - y
-    loss = np.mean(error ** 2)
+    loss = np.mean(error**2)
     dw = np.mean(2 * error * x)
     db = np.mean(2 * error)
     w -= lr * dw
     b -= lr * db
 
-print("="*40)
+print("=" * 40)
 print("Using NumPy")
-print("="*40)
+print("=" * 40)
 print(f"Learned: y = {w:.2f}x + {b:.2f}")
-print("-"*40)
+print("-" * 40)

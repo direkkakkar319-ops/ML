@@ -1,37 +1,41 @@
-from transformation import mat_vec_mul 
+from transformation import mat_vec_mul
+
 """Eigen values from scratch"""
+
+
 def eigenvalues_2x2(matrix):
-    a,b=matrix[0]
-    c,d=matrix[1]
-    trace=a+d 
-    det=a*d-b*c 
-    discriminant = trace**2-4*det
-    
-    if discriminant<0:
-        real=trace/2 
-        imag=(-discriminant)**0.5/2 
-        return (complex(real,imag),complex(real,-imag))
-    sqrt_disc=discriminant**0.5 
-    return ((trace+sqrt_disc)/2, (trace-sqrt_disc)/2)
+    a, b = matrix[0]
+    c, d = matrix[1]
+    trace = a + d
+    det = a * d - b * c
+    discriminant = trace**2 - 4 * det
+
+    if discriminant < 0:
+        real = trace / 2
+        imag = (-discriminant) ** 0.5 / 2
+        return (complex(real, imag), complex(real, -imag))
+    sqrt_disc = discriminant**0.5
+    return ((trace + sqrt_disc) / 2, (trace - sqrt_disc) / 2)
+
 
 def eigenvector_2x2(matrix, eignevalue):
-    a,b=matrix[0]
-    c,d=matrix[1]
+    a, b = matrix[0]
+    c, d = matrix[1]
 
-    if abs(b)>1e-10:
-        v=[b, eignevalue-a]
-    elif abs(c)>1e-10:
-        v=[eignevalue-d,c]
+    if abs(b) > 1e-10:
+        v = [b, eignevalue - a]
+    elif abs(c) > 1e-10:
+        v = [eignevalue - d, c]
     else:
-        if abs(a-eignevalue)<1e-10:
-            v=[1,0]
+        if abs(a - eignevalue) < 1e-10:
+            v = [1, 0]
         else:
-            v=[0,1]
-    mag=(v[0]**2+v[1]**2)**0.5
-    return (v[0]/mag, v[1]/mag)
+            v = [0, 1]
+    mag = (v[0] ** 2 + v[1] ** 2) ** 0.5
+    return (v[0] / mag, v[1] / mag)
 
 
-if __name__=="main":
+if __name__ == "main":
     A = [[2, 1], [1, 2]]
     vals = eigenvalues_2x2(A)
     print(f"Matrix: {A}")

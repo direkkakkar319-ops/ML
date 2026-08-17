@@ -5,10 +5,13 @@ Question
     using the adjugate method. Test it against
     NumPy's `np.linalg.inv`.
 """
-import sys
+
 import os
-import numpy as np 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import sys
+
+import numpy as np
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from core.matrix import Matrix
 
 
@@ -22,7 +25,8 @@ def numpy_inverse_check(matrix):
     if np.allclose(my_inv, np_inv, atol=1e-6):
         print("Correct")
     else:
-        print("Incorrect") 
+        print("Incorrect")
 
-matrix = Matrix([[1, 2, 3],[0, 1, 4],[5, 6, 0]])
+
+matrix = Matrix([[1, 2, 3], [0, 1, 4], [5, 6, 0]])
 numpy_inverse_check(matrix)

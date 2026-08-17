@@ -1,6 +1,7 @@
-from scipy import stats
+import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib.pyplot as plt 
+from scipy import stats
+
 
 def inver_transform(lambda_=1.0, n_samples=1000):
     """
@@ -10,7 +11,7 @@ def inver_transform(lambda_=1.0, n_samples=1000):
 
     Practical use case:
         The exponential distribution models waiting times between random events.
-        
+
         Examples:
         Time until the next customer arrives.
         Time until a machine fails.
@@ -18,14 +19,16 @@ def inver_transform(lambda_=1.0, n_samples=1000):
         Time until the next phone call reaches a call center.
     """
     # Inverse Transform samples
-    u = np.random.rand(n_samples) #uniform random numbers between (0,1)
-    samples = -np.log(1-u)/lambda_
+    u = np.random.rand(n_samples)  # uniform random numbers between (0,1)
+    samples = -np.log(1 - u) / lambda_
 
     # True PDF from SciPy
     x = np.linspace(0, samples.max(), 500)
-    pdf = stats.expon(scale=1/lambda_).pdf(x)
+    pdf = stats.expon(scale=1 / lambda_).pdf(x)
 
-    plt.hist(samples, bins=50, density=True, alpha=0.6, label="Inverse Transform Samples")
+    plt.hist(
+        samples, bins=50, density=True, alpha=0.6, label="Inverse Transform Samples"
+    )
     plt.plot(x, pdf, "r", lw=2, label="True PDF (SciPy)")
     plt.legend()
     plt.xlabel("x")
@@ -33,5 +36,6 @@ def inver_transform(lambda_=1.0, n_samples=1000):
     plt.title("Exponential Distribution: Inverse Transform Sampling")
     plt.show()
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     inver_transform(lambda_=1.0, n_samples=10000)

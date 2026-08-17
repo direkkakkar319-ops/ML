@@ -1,9 +1,9 @@
 # Overwriting the `__repr__` and `__str__` methods
 class Person:
-    def __init__(self, name:str, age:int):
+    def __init__(self, name: str, age: int):
         self.name = name
         self.age = age
-    
+
     def __repr__(self) -> str:
         """
         `__repr__` is meant to provide an unambiguous string representation of the object.
@@ -11,7 +11,7 @@ class Person:
         to recreate the object.
         """
         return f"Person(name:{self.name!r}, age={self.age})"
-    
+
     def __str__(self) -> str:
         """
         `__str__` is meant to provide a readable string representation of the object.

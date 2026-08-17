@@ -1,9 +1,10 @@
 import sys
+
 sys.path.append(r"E:\ML\PHASE01\D_CalculusForML\practice")
 sys.path.append(r"E:\ML\PHASE01\D_CalculusForML\core")
 import pytest
+from helper import cube, square
 from second_derivative import numerical_second_derivative
-from helper import square, cube 
 
 
 def test_square_numerical_second_derivative():

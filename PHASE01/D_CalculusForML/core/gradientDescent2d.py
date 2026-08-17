@@ -1,14 +1,13 @@
+from helper import f_2d
 from partialDerivative import numerical_gradient
 
-from helper import f_2d
-
 point = [4.0, 3.0]
-lr = 0.1 
+lr = 0.1
 steps = 50
 
 for step in range(steps):
     grad = numerical_gradient(f_2d, point)
-    point = [p-lr*g for p, g in zip(point , grad)]
+    point = [p - lr * g for p, g in zip(point, grad)]
     # `zip(point, grad)` pairs the coordinates with their corresponding gradients
     loss = f_2d(point)
 

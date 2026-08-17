@@ -1,8 +1,7 @@
+from helper import test_messages, train_docs, train_labels
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import classification_report
-
-from helper import train_docs, train_labels, test_messages
+from sklearn.naive_bayes import MultinomialNB
 
 vectorizer = CountVectorizer()
 X_train = vectorizer.fit_transform(train_docs)

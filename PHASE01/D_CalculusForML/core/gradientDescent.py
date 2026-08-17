@@ -1,10 +1,10 @@
-from partialDerivative import numerical_gradient, f_multi
+from partialDerivative import f_multi, numerical_gradient
 
 point = [1.0, 2.0]
 grad = numerical_gradient(f_multi, point)
 
-x = 5.0 # any value of x
-lr = 0.1 # learning rate
+x = 5.0  # any value of x
+lr = 0.1  # learning rate
 steps = 50
 
 for step in range(steps):

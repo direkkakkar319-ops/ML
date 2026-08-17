@@ -1,6 +1,7 @@
 import sys
+
 import pytest
-import torch as th 
+import torch as th
 import torch.nn as nn
 
 sys.path.append(r"E:\ML\PHASE01\F_ProbabilityAndDistributions\practice")

@@ -1,19 +1,22 @@
+import os
 import sqlite3
 import sys
-import os
-import pytest 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+import pytest
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from main import (
-    divide,
-    get_weather,
-    add,
-    prime_number,
-    get_season,
-    UserManager,
     DatabaseManager,
-    save_user
+    UserManager,
+    add,
+    divide,
+    get_season,
+    get_weather,
+    prime_number,
+    save_user,
 )
+
 
 def test_cold_weather():
     assert get_weather(10) == "Cold"
@@ -28,15 +31,17 @@ def test_add():
 
 
 def test_divide():
-    with pytest.raises(ValueError, match = "Can't divide by zero"):
+    with pytest.raises(ValueError, match="Can't divide by zero"):
         divide(10, 0)
 
 
 """
 `@pytest.fixture`
-    used to create reusable setup 
+    used to create reusable setup
     code that can be shared across multiple tests.
 """
+
+
 @pytest.fixture
 def user_manager():
     """Creates a fresh instance of `UserManager()` for every test run"""
@@ -44,7 +49,7 @@ def user_manager():
 
 
 def test_add_user(user_manager):
-    assert user_manager.add_user("John Don", "john@gmail.com") == True 
+    assert user_manager.add_user("John Don", "john@gmail.com") == True
     assert user_manager.get_user("John Don") == "john@gmail.com"
 
 
@@ -85,30 +90,40 @@ def test_delete_user(database_manager):
 
 """
 `@pytest.mark.parameters()`
-    used to run the same test function multiple 
+    used to run the same test function multiple
     times with different input values.
 """
-@pytest.mark.parametrize("num, expected", [
-    (1, False),
-    (2, True),
-    (3, True),
-    (4, False),
-    (17, True),
-    (19, True),
-    (25, False),
-])
+
+
+@pytest.mark.parametrize(
+    "num, expected",
+    [
+        (1, False),
+        (2, True),
+        (3, True),
+        (4, False),
+        (17, True),
+        (19, True),
+        (25, False),
+    ],
+)
 def test_prime_number(num, expected):
     assert prime_number(num) == expected
 
 
 """Mocking"""
+
+
 def test_get_season(mocker):
     # getting requests
-    mocker_get = mocker.patch('main.requests.get')
+    mocker_get = mocker.patch("main.requests.get")
 
     # setting the return values for testing
     mocker_get.return_value.status_code = 200
-    mocker_get.return_value.json.return_value = {"temperature": 25, "condition": "Sunny"}
+    mocker_get.return_value.json.return_value = {
+        "temperature": 25,
+        "condition": "Sunny",
+    }
 
     # Call the function
     result = get_season("Dubai")
@@ -119,6 +134,8 @@ def test_get_season(mocker):
 
 
 """Mocking with database"""
+
+
 def test_save_user(mocker):
     mocker_get = mocker.patch("sqlite3.connect")
     mocker_cursor = mocker_get.return_value.cursor.return_value
