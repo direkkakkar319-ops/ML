@@ -66,6 +66,23 @@ class NaiveBayes:
         return best_class
 
 
+def show_top_words(classifier, cls, n=5):
+    vocab_size = len(classifier.vocab)
+    total = classifier.class_word_totals[cls]
+    probs = {}
+
+    for word in classifier.vocab:
+        count = classifier.word_counts[cls].get(word, 0)
+        probs[word] = (count + classifier.smoothing) / (
+            total + classifier.smoothing * vocab_size
+        )
+
+    sorted_words = sorted(probs.items(), key=lambda x: x[1], reverse=True)
+
+    for word, prob in sorted_words[:n]:
+        print(f"{word}:{prob:.4f}")
+
+
 if __name__ == "__main__":
     from helper import test_messages, train_docs, train_labels
 
@@ -74,22 +91,6 @@ if __name__ == "__main__":
 
     for msg in test_messages:
         print(f"'{msg}'->{classifier.predict(msg)}")
-
-    def show_top_words(classifier, cls, n=5):
-        vocab_size = len(classifier.vocab)
-        total = classifier.class_word_totals[cls]
-        probs = {}
-
-        for word in classifier.vocab:
-            count = classifier.word_counts[cls].get(word, 0)
-            probs[word] = (count + classifier.smoothing) / (
-                total + classifier.smoothing * vocab_size
-            )
-
-        sorted_words = sorted(probs.items(), key=lambda x: x[1], reverse=True)
-
-        for word, prob in sorted_words[:n]:
-            print(f"{word}:{prob:.4f}")
 
     print("\nTop spam words:")
     show_top_words(classifier, "spam")
