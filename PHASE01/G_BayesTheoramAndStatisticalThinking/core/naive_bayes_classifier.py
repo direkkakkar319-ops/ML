@@ -1,6 +1,8 @@
 import math
 from collections import defaultdict
+
 from helper import threshold
+
 
 class NaiveBayes:
     def __init__(self, smoothing=1.0):
@@ -35,23 +37,23 @@ class NaiveBayes:
                 self.word_counts[label][word] += 1
                 self.class_word_totals[label] += 1
                 self.vocab.add(word)
-    
+
     def get_type_of_length(self, doc):
         """
         Get type of length by comparing with a threshold
         """
         word_count = len(doc.split())
-        if (word_count>threshold):
-            return 1 #long word
-        elif(word_count<threshold):
-            return 0 #short word
-    
+        if word_count > threshold:
+            return 1  # long word
+        elif word_count < threshold:
+            return 0  # short word
+
     def train_length_type(self, documents, labels):
         if not hasattr(self, "length_counts"):
             self._len_counts = defaultdict(lambda: defaultdict(int))
         for doc, label in zip(documents, labels):
             category = self.get_type_of_length(doc)
-            self._len_counts[label][category] += 1 
+            self._len_counts[label][category] += 1
 
     def length_prob(self, cls, category):
         num_categories = 2  # short, long
@@ -83,7 +85,6 @@ class NaiveBayes:
                 score += math.log(
                     (count + self.smoothing) / (total + self.smoothing * vocab_size)
                 )
-            
 
             if score > best_score:
                 best_score = score

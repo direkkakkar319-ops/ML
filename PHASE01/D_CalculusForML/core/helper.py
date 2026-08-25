@@ -23,6 +23,7 @@ def saddle(x, y):
 def bowl(x, y):
     return x**2 + y**2
 
+
 def biquadratic_equation(point):
     x = point[0]
     return x**4 - 3 * x**2

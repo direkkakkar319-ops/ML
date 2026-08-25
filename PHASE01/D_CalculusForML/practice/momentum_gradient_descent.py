@@ -11,8 +11,9 @@ import sys
 
 sys.path.append(r"E:\ML\PHASE01\D_CalculusForML\core")
 from gradient_descent import gradient_descent
-from partialDerivative import numerical_gradient
 from helper import biquadratic_equation
+from partialDerivative import numerical_gradient
+
 
 def momentum_gradient_descent(f, point, steps, lr, momentum=0.95):
     velocity = [0.0]
