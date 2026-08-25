@@ -1,12 +1,13 @@
 import math
 from collections import defaultdict
-
+from helper import threshold
 
 class NaiveBayes:
     def __init__(self, smoothing=1.0):
         self.smoothing = smoothing
         self.class_counts = defaultdict(int)
         self.word_counts = defaultdict(lambda: defaultdict(int))
+        self._len_counts = defaultdict(lambda: defaultdict(int))
         self.class_word_totals = defaultdict(int)
         self.vocab = set()
 
@@ -34,6 +35,29 @@ class NaiveBayes:
                 self.word_counts[label][word] += 1
                 self.class_word_totals[label] += 1
                 self.vocab.add(word)
+    
+    def get_type_of_length(self, doc):
+        """
+        Get type of length by comparing with a threshold
+        """
+        word_count = len(doc.split())
+        if (word_count>threshold):
+            return 1 #long word
+        elif(word_count<threshold):
+            return 0 #short word
+    
+    def train_length_type(self, documents, labels):
+        if not hasattr(self, "length_counts"):
+            self._len_counts = defaultdict(lambda: defaultdict(int))
+        for doc, label in zip(documents, labels):
+            category = self.get_type_of_length(doc)
+            self._len_counts[label][category] += 1 
+
+    def length_prob(self, cls, category):
+        num_categories = 2  # short, long
+        count = self._len_counts[cls].get(category, 0)
+        total = self.class_counts[cls]
+        return (count + self.smoothing) / (total + self.smoothing * num_categories)
 
     def predict(self, document):
         """
@@ -48,6 +72,7 @@ class NaiveBayes:
         vocab_size = len(self.vocab)
         best_class = None
         best_score = float("-inf")
+        category = self.get_type_of_length(doc=document)
 
         for cls in self.class_counts:
             score = math.log(self.class_counts[cls] / total_docs)
@@ -58,6 +83,7 @@ class NaiveBayes:
                 score += math.log(
                     (count + self.smoothing) / (total + self.smoothing * vocab_size)
                 )
+            
 
             if score > best_score:
                 best_score = score
@@ -97,3 +123,9 @@ if __name__ == "__main__":
 
     print("\nTop ham words:")
     show_top_words(classifier, "ham")
+
+    print("\nLength probabilities:")
+    print(f"P(short|spam) = {classifier.length_prob('spam', 0):.4f}")
+    print(f"P(short|ham)  = {classifier.length_prob('ham', 0):.4f}")
+    print(f"P(long|spam)  = {classifier.length_prob('spam', 1):.4f}")
+    print(f"P(long|ham)   = {classifier.length_prob('ham', 1):.4f}")

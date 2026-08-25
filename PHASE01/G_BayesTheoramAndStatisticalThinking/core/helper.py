@@ -34,3 +34,5 @@ test_messages = [
     "you won a free prize",
     "please review the attached report",
 ]
+
+threshold = 7
