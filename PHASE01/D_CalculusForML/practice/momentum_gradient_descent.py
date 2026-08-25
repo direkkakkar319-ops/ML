@@ -12,12 +12,7 @@ import sys
 sys.path.append(r"E:\ML\PHASE01\D_CalculusForML\core")
 from gradient_descent import gradient_descent
 from partialDerivative import numerical_gradient
-
-
-def f(point):
-    x = point[0]
-    return x**4 - 3 * x**2
-
+from helper import biquadratic_equation
 
 def momentum_gradient_descent(f, point, steps, lr, momentum=0.95):
     velocity = [0.0]
@@ -36,8 +31,8 @@ if __name__ == "__main__":
     lr = 0.0001
     point = [1.0]
 
-    normal = gradient_descent(f, point, steps, lr)
-    momentum = momentum_gradient_descent(f, point, steps, lr)
+    normal = gradient_descent(biquadratic_equation, point, steps, lr)
+    momentum = momentum_gradient_descent(biquadratic_equation, point, steps, lr)
 
     print(f"Gradient Descent done Normally: {normal}")
     print(f"Gradient Descent done using momentum:  {momentum}")
