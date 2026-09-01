@@ -1,0 +1,71 @@
+<div style="max-width:680px">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+  <label style="font-size:13px;color:var(--text-secondary);width:110px">Direction a: <span id="aval" style="color:var(--text-primary);font-weight:500">0.0</span></label>
+  <input type="range" id="aSlider" min="-100" max="100" value="0" step="1" style="flex:1">
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+  <label style="font-size:13px;color:var(--text-secondary);width:110px">Direction b: <span id="bval" style="color:var(--text-primary);font-weight:500">0.0</span></label>
+  <input type="range" id="bSlider" min="-100" max="100" value="0" step="1" style="flex:1">
+</div>
+
+<div style="display:flex;gap:20px;align-items:flex-start">
+  <svg width="340" height="340" viewBox="0 0 340 340" id="contourSvg" style="flex-shrink:0">
+    <defs>
+      <radialGradient id="rg" cx="50%" cy="50%" r="70%">
+        <stop offset="0%" stop-color="#5DCAA5" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#5DCAA5" stop-opacity="0.04"/>
+      </radialGradient>
+    </defs>
+    <rect x="20" y="20" width="300" height="300" rx="4" fill="url(#rg)"/>
+    <circle cx="170" cy="170" r="120" fill="none" stroke="#0F6E56" stroke-width="0.6" opacity="0.5"/>
+    <circle cx="170" cy="170" r="85" fill="none" stroke="#0F6E56" stroke-width="0.6" opacity="0.6"/>
+    <circle cx="170" cy="170" r="50" fill="none" stroke="#0F6E56" stroke-width="0.6" opacity="0.7"/>
+    <circle cx="170" cy="170" r="18" fill="none" stroke="#0F6E56" stroke-width="0.8"/>
+    <line x1="20" y1="320" x2="320" y2="320" stroke="var(--t)" stroke-width="0.5"/>
+    <line x1="20" y1="320" x2="20" y2="20" stroke="var(--t)" stroke-width="0.5"/>
+    <text x="170" y="336" text-anchor="middle" font-size="12" fill="var(--text-secondary)">direction a</text>
+    <text x="10" y="170" text-anchor="middle" font-size="12" fill="var(--text-secondary)" transform="rotate(-90 10 170)">direction b</text>
+    <circle id="dot" cx="170" cy="170" r="6" fill="#D85A30"/>
+  </svg>
+
+  <div style="flex:1;padding-top:8px">
+    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 8px;line-height:1.6">
+      Every point on the flat square corresponds to <strong style="font-weight:500">one specific version</strong> of the whole million-weight model:
+    </p>
+    <p style="font-family:var(--font-mono,monospace);font-size:12px;background:var(--surface-1);padding:8px 10px;border-radius:6px;margin:0 0 10px">
+      w = w* + a·(dir a) + b·(dir b)
+    </p>
+    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 6px">You run that full model on real data, get one loss number, and that number becomes the height/color at that point.</p>
+    <div style="margin-top:10px;font-size:14px">Loss here: <span id="lossOut" style="font-weight:500">0.00</span></div>
+  </div>
+</div>
+
+<p style="font-size:12px;color:var(--text-muted);margin-top:14px;line-height:1.6">
+Drag either slider — the dot moves to a new (a, b) point, and the loss re-evaluates the full model at that point. The rings just connect points where the model happens to score the same loss.
+</p>
+</div>
+
+<script>
+const aS = document.getElementById('aSlider');
+const bS = document.getElementById('bSlider');
+const aval = document.getElementById('aval');
+const bval = document.getElementById('bval');
+const dot = document.getElementById('dot');
+const lossOut = document.getElementById('lossOut');
+
+function update() {
+  const a = aS.value / 100;
+  const b = bS.value / 100;
+  aval.textContent = a.toFixed(2);
+  bval.textContent = b.toFixed(2);
+  const loss = (a*a + b*b).toFixed(2);
+  lossOut.textContent = loss;
+  const cx = 170 + a * 130;
+  const cy = 170 + b * 130;
+  dot.setAttribute('cx', cx);
+  dot.setAttribute('cy', cy);
+}
+aS.addEventListener('input', update);
+bS.addEventListener('input', update);
+update();
+</script>
