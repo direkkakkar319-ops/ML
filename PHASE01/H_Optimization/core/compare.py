@@ -24,21 +24,22 @@ def optimize(optimizer, func, grad_func, start, steps=5000):
     return history
 
 
-start = [-1.0, 1.0]
+if __name__ == "__main__":
+    start = [-1.0, 1.0]
 
-gd_history = optimize(
-    GradientDescent(lr=0.0005), rosenbrock, rosenbrock_gradient, start
-)
-sgd_history = optimize(
-    SGDMomentum(lr=0.0001, momentum=0.9), rosenbrock, rosenbrock_gradient, start
-)
-adam_history = optimize(Adam(lr=0.01), rosenbrock, rosenbrock_gradient, start)
+    gd_history = optimize(
+        GradientDescent(lr=0.0005), rosenbrock, rosenbrock_gradient, start
+    )
+    sgd_history = optimize(
+        SGDMomentum(lr=0.0001, momentum=0.9), rosenbrock, rosenbrock_gradient, start
+    )
+    adam_history = optimize(Adam(lr=0.01), rosenbrock, rosenbrock_gradient, start)
 
-for name, history in [
-    ("GD", gd_history),
-    ("SGD+M", sgd_history),
-    ("Adam", adam_history),
-]:
-    final = history[-1]
-    loss = rosenbrock(final)
-    print(f"{name:6s} -> x={final[0]:.6f}, y={final[1]:.6f}, loss={loss:.8f}")
+    for name, history in [
+        ("GD", gd_history),
+        ("SGD+M", sgd_history),
+        ("Adam", adam_history),
+    ]:
+        final = history[-1]
+        loss = rosenbrock(final)
+        print(f"{name:6s} -> x={final[0]:.6f}, y={final[1]:.6f}, loss={loss:.8f}")
