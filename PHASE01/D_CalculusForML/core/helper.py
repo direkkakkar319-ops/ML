@@ -27,3 +27,8 @@ def bowl(x, y):
 def biquadratic_equation(point):
     x = point[0]
     return x**4 - 3 * x**2
+
+
+def f_2d_negative(params):
+    x, y = params
+    return x**2 - y**2

@@ -29,7 +29,7 @@ for m in momentum:
         )
     except OverflowError:
         print(f"momentum={m} diverged (overflow)")
-        history[m] = None
+        SGD_history[m] = None
 
 final_losses = {
     lr: history[-1][1] for lr, history in SGD_history.items() if history is not None
@@ -37,3 +37,14 @@ final_losses = {
 
 for key, values in final_losses.items():
     print(f"Momentum: {key} Loss: {values}")
+
+for key, values in SGD_history.items():
+    if values is None:
+        print(f"Momentum: {key}: diverged")
+        continue
+    steps_to_converge = next(
+        (i for i, (params, loss) in enumerate(hist) if loss < threshold), None
+    )
+    print(
+        f"momentum={m}: {steps_to_converge if steps_to_converge is not None else 'never converged'}"
+    )

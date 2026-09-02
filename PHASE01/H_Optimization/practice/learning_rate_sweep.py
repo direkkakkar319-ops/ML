@@ -47,4 +47,7 @@ plt.xlabel("Learning Rate")
 plt.ylabel("Final loss after 5000 steps")
 plt.title("Learning rate sweep on Rosenbrock function")
 plt.grid(True, which="both", ls="--", alpha=0.5)
+plt.savefig(
+    r"E:\ML\PHASE01\H_Optimization\practice\graphs\lr_sweep.png", dpi=150
+)  # <-- added, before show()
 plt.show()
