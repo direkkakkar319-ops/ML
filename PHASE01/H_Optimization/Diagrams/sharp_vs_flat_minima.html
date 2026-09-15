@@ -1,0 +1,53 @@
+<h2 class="sr-only">Interactive diagram comparing sharp and flat minima on a loss landscape, with a slider showing how loss changes as weights are perturbed away from each minimum.</h2>
+<svg width="100%" viewBox="0 0 680 340" role="img">
+<title>Sharp vs flat minima</title>
+<desc>Two loss curves, one narrow and steep (sharp minimum), one wide and shallow (flat minimum), with a marker showing loss at a perturbed weight.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+<text class="th" x="170" y="30" text-anchor="middle">Sharp minimum</text>
+<text class="th" x="510" y="30" text-anchor="middle">Flat minimum</text>
+<line x1="40" y1="270" x2="300" y2="270" stroke="var(--border)" stroke-width="0.5"/>
+<line x1="380" y1="270" x2="640" y2="270" stroke="var(--border)" stroke-width="0.5"/>
+<path id="sharp-curve" fill="none" stroke="var(--t)" stroke-width="1.5" d="M60,260 Q170,50 280,260"/>
+<path id="flat-curve" fill="none" stroke="var(--t)" stroke-width="1.5" d="M400,240 Q510,190 620,240"/>
+<circle id="sharp-min" cx="170" cy="255" r="4" fill="#639922"/>
+<circle id="flat-min" cx="510" cy="235" r="4" fill="#639922"/>
+<circle id="sharp-dot" cx="170" cy="255" r="5" fill="#D85A30"/>
+<circle id="flat-dot" cx="510" cy="235" r="5" fill="#D85A30"/>
+<line id="sharp-lead" x1="170" y1="255" x2="170" y2="255" stroke="#D85A30" stroke-width="0.5" stroke-dasharray="3 3"/>
+<line id="flat-lead" x1="510" y1="235" x2="510" y2="235" stroke="#D85A30" stroke-width="0.5" stroke-dasharray="3 3"/>
+<text class="ts" x="170" y="290" text-anchor="middle">weights</text>
+<text class="ts" x="510" y="290" text-anchor="middle">weights</text>
+<text class="ts" x="20" y="150" text-anchor="middle" transform="rotate(-90 20 150)">loss</text>
+</svg>
+<div style="display:flex;align-items:center;gap:12px;margin-top:12px;font-size:13px;color:var(--text-secondary)">
+<span>Perturb weights</span>
+<input type="range" id="pert" min="0" max="100" value="0" style="flex:1" oninput="setPert(this.value)">
+<span id="pert-label" style="min-width:32px;text-align:right">0%</span>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--text-muted)">
+<span id="sharp-readout">Loss increase: 0.00</span>
+<span id="flat-readout">Loss increase: 0.00</span>
+</div>
+<script>
+function setPert(v){
+  const p = v/100;
+  document.getElementById('pert-label').textContent = v+'%';
+  const sx = 170 + p*95;
+  const sy = 255 - (210*p*p);
+  document.getElementById('sharp-dot').setAttribute('cx', sx);
+  document.getElementById('sharp-dot').setAttribute('cy', Math.max(sy,50));
+  document.getElementById('sharp-lead').setAttribute('x2', sx);
+  document.getElementById('sharp-lead').setAttribute('y2', Math.max(sy,50));
+  document.getElementById('sharp-readout').textContent = 'Loss increase: '+(p*p*10).toFixed(2);
+
+  const fx = 510 + p*95;
+  const fy = 235 - (45*p*p);
+  document.getElementById('flat-dot').setAttribute('cx', fx);
+  document.getElementById('flat-dot').setAttribute('cy', fy);
+  document.getElementById('flat-lead').setAttribute('x2', fx);
+  document.getElementById('flat-lead').setAttribute('y2', fy);
+  document.getElementById('flat-readout').textContent = 'Loss increase: '+(p*p*2.1).toFixed(2);
+}
+</script>
